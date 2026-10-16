@@ -1,0 +1,9 @@
+{
+  "name": "ci",
+  "image": "golang:trixie",
+  "features": {
+    "ghcr.io/devcontainers-extra/features/go-task:1": {
+      "version": "3.54.0"
+    }
+  }
+}
