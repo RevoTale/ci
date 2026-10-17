@@ -1,8 +1,13 @@
 when:
-  - event: [push, pull_request, manual]
+  - event: [push, pull_request, manual, tag]
 
 steps:
   - name: validate-workflows
     image: woodpeckerci/woodpecker-cli:v3.19.0
     commands:
-      - woodpecker-cli --disable-update-check lint --strict
+      # The CLI does not read the server's privileged-plugin allowlist.
+      # Without this declaration, strict lint rejects the buildx plugin.
+      # This only configures linting; it grants no runtime privileges.
+      - >-
+        woodpecker-cli --disable-update-check lint --strict
+        --plugins-privileged=woodpeckerci/plugin-docker-buildx:6.1.1
