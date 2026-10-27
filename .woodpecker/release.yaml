@@ -7,7 +7,12 @@ depends_on: [image]
 steps:
   - name: release
     image: woodpeckerci/plugin-ready-release-go:4.1.2
-    settings:
-      git_email: ${CI_COMMIT_AUTHOR_EMAIL}
-      forge_token:
+    environment:
+      PLUGIN_GIT_EMAIL: ${CI_COMMIT_AUTHOR_EMAIL}
+      PLUGIN_FORGE_TOKEN:
         from_secret: forge_token
+    commands:
+      # Upstream 4.1.2 copies x86 esbuild into ARM64 images. Repair its pinned
+      # dependency before starting the official plugin; remove when upstream fixes it.
+      - npm rebuild --prefix /app --foreground-scripts esbuild
+      - /app/node_modules/.bin/tsx /app/src/run.ts
