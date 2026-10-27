@@ -11,6 +11,10 @@ steps:
       - >-
         woodpecker-cli --disable-update-check lint --strict
         --plugins-privileged=woodpeckerci/plugin-docker-buildx:6.1.2
+      - >-
+        woodpecker-cli --disable-update-check lint --strict
+        --plugins-privileged=ghcr.io/revotale/ci/buildx:v0.1.0
+        examples/woodpecker.yaml
 
   - name: check-format-and-fixes
     image: golang:1.27.2-trixie
