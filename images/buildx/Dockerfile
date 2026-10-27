@@ -1,4 +1,5 @@
-FROM golang:1.27.2-trixie AS build
+# Compile natively for each target architecture instead of running Go under QEMU.
+FROM --platform=$BUILDPLATFORM golang:1.27.2-trixie AS build
 
 WORKDIR /src
 COPY go.mod go.sum ./
@@ -7,7 +8,9 @@ RUN ["go", "mod", "download"]
 COPY cmd ./cmd
 COPY internal ./internal
 
-ENV CGO_ENABLED=0
+ARG TARGETOS
+ARG TARGETARCH
+ENV CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH
 RUN ["go", "build", "-trimpath", "-o", "/out/buildx", "./cmd/buildx"]
 
 # Keep the official builder and daemon startup; add metadata handling.
