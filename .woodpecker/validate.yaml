@@ -3,7 +3,7 @@ when:
 
 steps:
   - name: validate-workflows
-    image: woodpeckerci/woodpecker-cli:v3.19.0
+    image: woodpeckerci/woodpecker-cli:v3.19.0-alpine
     depends_on: []
     commands:
       # CLI lint does not read the server's privileged-plugin allowlist.
