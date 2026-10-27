@@ -7,3 +7,7 @@
 - Prefer native Woodpecker plugins and configuration over custom scripts.
 - Keep proposals, comments and documentation short: what, why, how to verify.
 - Distinguish proposed, implemented and tested behavior.
+- Implement CI functionality in RevoTale/ci.
+- Propose extraction into RevoTale/woodpecker-toolkit only when it provides
+  clear general-purpose value to users outside RevoTale.
+- Do not extract code merely to share it between our repositories.

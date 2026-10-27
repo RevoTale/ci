@@ -3,47 +3,62 @@ when:
 
 depends_on: [validate]
 
+matrix:
+  include:
+    - BUILD_CONTEXT: .
+      DOCKERFILE: images/buildx/Dockerfile
+      IMAGE_REPOSITORY: ghcr.io/revotale/ci/buildx
+      IMAGE_DESCRIPTION: Docker Buildx plugin with required RevoTale metadata
+    - BUILD_CONTEXT: images/go-task
+      DOCKERFILE: images/go-task/Dockerfile
+      IMAGE_REPOSITORY: ghcr.io/revotale/ci/base
+      IMAGE_DESCRIPTION: Go and Task on Debian Trixie
+
+variables:
+  - &build-settings
+    context: ${BUILD_CONTEXT}
+    dockerfile: ${DOCKERFILE}
+    labels:
+      - org.opencontainers.image.title=${CI_REPO_NAME}
+      - org.opencontainers.image.description=${IMAGE_DESCRIPTION}
+      - org.opencontainers.image.authors=Liakhovskyi Vladyslav
+      - org.opencontainers.image.licenses=MIT
+
 steps:
   - name: test-image
-    image: woodpeckerci/plugin-docker-buildx:6.1.1
+    image: woodpeckerci/plugin-docker-buildx:6.1.2
     settings:
-      context: images/go-task
-      dockerfile: images/go-task/Dockerfile
+      <<: *build-settings
       target: artifact-test
-      # Test arm64 by default; add other platforms when needed.
       platforms: linux/arm64
       dry_run: true
       cache_to: type=local,dest=.build-cache,mode=max
 
   - name: build-image
-    image: woodpeckerci/plugin-docker-buildx:6.1.1
+    image: woodpeckerci/plugin-docker-buildx:6.1.2
     depends_on: [test-image]
     when:
       - event: [push, pull_request, manual]
     settings:
-      context: images/go-task
-      dockerfile: images/go-task/Dockerfile
+      <<: *build-settings
       target: release
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/arm64,linux/amd64
       dry_run: true
-      # Reuse matching runtime layers through this workflow's shared workspace.
       cache_from: 'type=local\,src=.build-cache'
 
   - name: publish-image
-    image: woodpeckerci/plugin-docker-buildx:6.1.1
+    image: woodpeckerci/plugin-docker-buildx:6.1.2
     depends_on: [test-image]
     when:
       - event: tag
         ref: refs/tags/v*
     settings:
-      context: images/go-task
-      dockerfile: images/go-task/Dockerfile
+      <<: *build-settings
       target: release
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/arm64,linux/amd64
       cache_from: 'type=local\,src=.build-cache'
-      # Publish versioned images only after artifact checks pass.
       registry: ghcr.io
-      repo: ghcr.io/revotale/ci/go-task
+      repo: ${IMAGE_REPOSITORY}
       tags: ${CI_COMMIT_TAG}
       username:
         from_secret: registry_username

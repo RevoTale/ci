@@ -1,0 +1,22 @@
+version: "3"
+
+tasks:
+  lint:
+    desc: Check Go code and formatting
+    cmds:
+      - go tool golangci-lint run
+
+  test:unit:
+    desc: Run Go unit tests
+    cmds:
+      - go test ./...
+
+  fmt:
+    desc: Format Go code
+    cmds:
+      - go fmt ./...
+
+  fix:
+    desc: Apply Go modernization fixes
+    cmds:
+      - go fix ./...

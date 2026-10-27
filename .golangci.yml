@@ -1,0 +1,43 @@
+version: "2"
+
+linters:
+  default: all
+  disable:
+    # Zero values are intentional, especially in third-party option structs.
+    - exhaustruct
+    - exhaustruct_v5
+    # Scoped error checks are idiomatic Go.
+    - noinlineerr
+    # Test private behavior without expanding the public API.
+    - testpackage
+    # Superseded linters; their current replacements remain enabled.
+    - gomodguard
+    - wsl
+  settings:
+    depguard:
+      rules:
+        main:
+          list-mode: strict
+          allow:
+            - $gostd
+            - github.com/RevoTale/ci/internal/buildx
+            - codeberg.org/woodpecker-plugins/go-plugin
+            - github.com/urfave/cli/v3
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    govet:
+      enable-all: true
+    funlen:
+      lines: 30
+      statements: 20
+    cyclop:
+      max-complexity: 10
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+
+formatters:
+  enable:
+    - gofmt
+    - goimports

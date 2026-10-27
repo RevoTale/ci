@@ -4,10 +4,31 @@ when:
 steps:
   - name: validate-workflows
     image: woodpeckerci/woodpecker-cli:v3.19.0
+    depends_on: []
     commands:
-      # The CLI does not read the server's privileged-plugin allowlist.
-      # Without this declaration, strict lint rejects the buildx plugin.
-      # This only configures linting; it grants no runtime privileges.
+      # CLI lint does not read the server's privileged-plugin allowlist.
+      # This declaration grants no runtime privileges.
       - >-
         woodpecker-cli --disable-update-check lint --strict
-        --plugins-privileged=woodpeckerci/plugin-docker-buildx:6.1.1
+        --plugins-privileged=woodpeckerci/plugin-docker-buildx:6.1.2
+
+  - name: check-format-and-fixes
+    image: golang:1.27.2-trixie
+    depends_on: []
+    commands:
+      - go tool task fmt
+      - go tool task fix
+      # CI starts from a clean checkout; required updates must fail the check.
+      - git diff --exit-code -- '*.go'
+
+  - name: lint
+    image: golang:1.27.2-trixie
+    depends_on: [check-format-and-fixes]
+    commands:
+      - go tool task lint
+
+  - name: unit
+    image: golang:1.27.2-trixie
+    depends_on: [check-format-and-fixes]
+    commands:
+      - go tool task test:unit
