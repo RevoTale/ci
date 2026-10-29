@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.1](https://github.com/RevoTale/ci/releases/tag/v0.1.1) - 2026-10-29
+
+### ❤️ Thanks to all contributors! ❤️
+
+@Liakhovskyi Vladyslav
+
+### Misc
+
+- feat(ci): add reusable Updatecli dependency policy and runner ([8b9e876](https://github.com/RevoTale/ci/commit/8b9e87620c2e2369beae1144636a278d5f23cfb0))
+- docs(ci): record decisions and make step images explicit ([1af8082](https://github.com/RevoTale/ci/commit/1af80826be1ccc031f56fd4eced630f52a035f72))
+
 ## [0.1.0](https://github.com/RevoTale/ci/releases/tag/v0.1.0) - 2026-10-27
 
 ### ❤️ Thanks to all contributors! ❤️
