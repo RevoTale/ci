@@ -1,0 +1,41 @@
+when:
+  - event: tag
+    ref: refs/tags/v*
+
+depends_on: [image]
+
+steps:
+  - name: registry-login
+    image: docker:28.5.1-cli
+    environment:
+      DOCKER_CONFIG: .registry-auth
+      REGISTRY_USERNAME:
+        from_secret: registry_username
+      REGISTRY_PASSWORD:
+        from_secret: registry_password
+    commands:
+      # Login only writes credentials; no Docker daemon is needed.
+      - printf '%s' "$REGISTRY_PASSWORD" | docker login ghcr.io --username "$REGISTRY_USERNAME" --password-stdin
+
+  - name: publish-policy
+    image: ghcr.io/updatecli/updatecli:v0.123.0
+    environment:
+      DOCKER_CONFIG: .registry-auth
+    commands:
+      # Policy.yaml supplies the version. Existing versions are not overwritten.
+      - >-
+        updatecli --disable-version-check manifest push
+        --config policies/dependencies/updatecli.yaml
+        --values policies/dependencies/values.yaml
+        --policy policies/dependencies/Policy.yaml
+        --tag ghcr.io/revotale/ci/policies/dependencies
+        .
+
+  - name: registry-logout
+    image: docker:28.5.1-cli
+    environment:
+      DOCKER_CONFIG: .registry-auth
+    when:
+      - status: [success, failure]
+    commands:
+      - docker logout ghcr.io

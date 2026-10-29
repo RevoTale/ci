@@ -2,7 +2,7 @@
 
 Two files connect a GitHub repository to our shared Updatecli policy. It opens one dependency PR, without automerge.
 
-**Not published yet:** policy `0.1.0` and runner `v0.2.0` below are the planned first releases. Verify both exist before enabling this workflow.
+**Not published yet:** policy `0.1.0` and runner `v0.1.1` below are the planned first releases. Verify both exist before enabling this workflow.
 
 ## Connect a repository
 
