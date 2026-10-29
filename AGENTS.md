@@ -29,3 +29,4 @@
 - Record the user's reason for a decision, not your inferred justification.
 - If the reason is unclear or missing, ask before recording it.
 - You may shorten the wording, but must preserve the user's meaning.
+- For dependency-update integration, read docs/integrate-dependency-updates.md.

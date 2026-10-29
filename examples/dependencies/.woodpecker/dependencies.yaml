@@ -1,0 +1,17 @@
+when:
+  - event: cron
+    cron: dependencies
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+  - event: manual
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+
+steps:
+  - name: update-dependencies
+    # First planned release containing the Updatecli runner; publish before use.
+    image: ghcr.io/revotale/ci/updatecli:v0.2.0
+    environment:
+      # Public repositories also need authentication to push branches and open PRs.
+      UPDATECLI_GITHUB_TOKEN:
+        from_secret: forge_token
+    commands:
+      - updatecli compose apply

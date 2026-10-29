@@ -34,3 +34,7 @@ Required metadata makes omissions visible before a build starts; it does not val
 For multiple images, use [our matrix](.woodpecker/image.yaml). Each entry declares its context, Dockerfile and complete registry path.
 
 Develop shared functionality here. Extract it into [woodpecker-toolkit](https://github.com/RevoTale/woodpecker-toolkit) only when it provides clear value outside RevoTale.
+
+## Dependency updates
+
+Use the shared Updatecli policy and runner with two project files. Follow the [integration guide](docs/integrate-dependency-updates.md), including publication prerequisites and Woodpecker setup.

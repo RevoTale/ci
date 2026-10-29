@@ -15,6 +15,9 @@ steps:
         woodpecker-cli --disable-update-check lint --strict
         --plugins-privileged=ghcr.io/revotale/ci/buildx:v0.1.0
         examples/woodpecker.yaml
+      - >-
+        woodpecker-cli --disable-update-check lint --strict
+        examples/dependencies/.woodpecker/dependencies.yaml
 
   - name: check-format-and-fixes
     image: golang:1.27.2-trixie
@@ -36,3 +39,13 @@ steps:
     depends_on: [check-format-and-fixes]
     commands:
       - go tool task test:unit
+
+  - name: validate-dependency-policy
+    image: ghcr.io/updatecli/updatecli:v0.123.0
+    depends_on: []
+    commands:
+      # Parse the shared policy without pushing branches or creating PRs.
+      - >-
+        updatecli --disable-version-check manifest validate --strict
+        --config policies/dependencies/updatecli.yaml
+        --values policies/dependencies/values.yaml

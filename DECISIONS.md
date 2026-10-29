@@ -29,3 +29,5 @@ Current agreed decisions. Implementation may still be pending.
 | Keep forge and registry credentials in Woodpecker secrets with access limited to the events that need them. | Keep credentials out of Git and untrusted PR checks; allow platforms to change. |
 | Require approval before running untrusted contributions. Keep privileged builders on a separate CI machine. | Approval controls execution; the separate machine limits exposure of the homelab. Infrastructure setup stays separate from this repo. |
 | Mark AI involvement as `AI: advisory`. | Keep attribution consistent with our working agreement. |
+| Reuse a versioned Updatecli policy through a short project config. | Keep project integration minimal and document it so AI agents can integrate it too. |
+| Require `forge_token` for dependency PRs, including public repositories. | Publishing branches and PRs needs authentication. No separate preview mode for now. |

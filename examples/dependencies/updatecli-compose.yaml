@@ -1,0 +1,2 @@
+policies:
+  - policy: ghcr.io/revotale/ci/policies/dependencies:0.1.0
