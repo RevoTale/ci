@@ -1,0 +1,8 @@
+version: 0.1.0
+name: RevoTale dependency updates
+description: Update project dependencies through pull requests.
+authors:
+  - Liakhovskyi Vladyslav
+licenses:
+  - MIT
+source: https://github.com/RevoTale/ci

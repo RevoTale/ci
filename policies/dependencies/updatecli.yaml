@@ -1,0 +1,21 @@
+name: "chore(deps): update dependencies"
+
+scms:
+  repository:
+    kind: github
+    spec:
+      owner: '{{ requiredEnv "CI_REPO_OWNER" }}'
+      repository: '{{ requiredEnv "CI_REPO_NAME" }}'
+      branch: '{{ requiredEnv "CI_REPO_DEFAULT_BRANCH" }}'
+
+actions:
+  dependencies:
+    kind: github/pullrequest
+    scmid: repository
+
+autodiscovery:
+  scmid: repository
+  actionid: dependencies
+  groupby: all
+  crawlers:
+{{ .crawlers | toYaml | indent 4 }}

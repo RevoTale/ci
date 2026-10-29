@@ -1,0 +1,7 @@
+crawlers:
+  dockerfile:
+    digest: false
+  woodpecker:
+    digest: false
+  golang: {}
+  updatecli: {}

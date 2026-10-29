@@ -13,6 +13,10 @@ matrix:
       DOCKERFILE: images/go-task/Dockerfile
       IMAGE_REPOSITORY: ghcr.io/revotale/ci/base
       IMAGE_DESCRIPTION: Go and Task on Debian Trixie
+    - BUILD_CONTEXT: images/updatecli
+      DOCKERFILE: images/updatecli/Dockerfile
+      IMAGE_REPOSITORY: ghcr.io/revotale/ci/updatecli
+      IMAGE_DESCRIPTION: Updatecli with Go for dependency pull requests
 
 variables:
   - &build-settings

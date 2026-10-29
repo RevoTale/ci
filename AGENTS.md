@@ -11,3 +11,22 @@
 - Propose extraction into RevoTale/woodpecker-toolkit only when it provides
   clear general-purpose value to users outside RevoTale.
 - Do not extract code merely to share it between our repositories.
+
+# Decisions
+
+- Read DECISIONS.md before proposing or making changes.
+- Check relevant decisions against the current implementation and sources.
+  Explain conflicts; do not silently override agreed decisions.
+- After the user approves a key decision, update DECISIONS.md automatically.
+  Recording it needs no separate approval; implementation still does.
+- Record decisions that affect future work: architecture, dependencies,
+  security, interfaces and working agreements.
+- Use "We do / Why". Keep wording short and concrete.
+  Include the important tradeoff or rejected alternative when relevant.
+- Keep one entry per decision. Update changed decisions, merge duplicates
+  and remove obsolete entries. Git preserves their history.
+- Record agreement, not implementation or test status.
+- Record the user's reason for a decision, not your inferred justification.
+- If the reason is unclear or missing, ask before recording it.
+- You may shorten the wording, but must preserve the user's meaning.
+- For dependency-update integration, read docs/integrate-dependency-updates.md.
