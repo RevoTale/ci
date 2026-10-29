@@ -25,7 +25,7 @@ The Dockerfile needs `artifact-test` and `release` targets sharing the same runt
 
 ## Behavior
 
-PR, push and manual runs validate and build without publishing. A `v*` tag validates, tests and publishes that exact tag. Change the tag filter if a project uses another convention. Artifact tests run on ARM64 by default; release images include ARM64 and AMD64.
+PR, default-branch push and manual runs validate and build without publishing. Pushes to other branches do not duplicate PR checks. A `v*` tag validates, tests and publishes that exact tag. Other tags do not start these workflows. Change the workflow and publication tag filters together if a project uses another convention. Artifact tests run on ARM64 by default; release images include ARM64 and AMD64.
 
 The cache is a workspace directory shared by steps in one workflow. It is not a persistent or cross-project cache. Separate workflows do not share it.
 
@@ -38,3 +38,5 @@ Develop shared functionality here. Extract it into [woodpecker-toolkit](https://
 ## Dependency updates
 
 Use the shared Updatecli policy and runner with two project files. Follow the [integration guide](docs/integrate-dependency-updates.md), including publication prerequisites and Woodpecker setup.
+
+Push and PR checks are deduplicated by event filters, not a shared key. A release tag still validates its commit: Woodpecker does not reuse a successful push pipeline through `depends_on`. `concurrency` queues runs, and cancellation of previous pipelines only affects active runs of the same event/context; neither substitutes for release validation.

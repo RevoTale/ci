@@ -22,7 +22,7 @@ Current agreed decisions. Implementation may still be pending.
 | Require `title`, `description`, `authors` and `licenses` in our Buildx wrapper. | Missing metadata fails early. Reuse plugin-provided labels instead of duplicating them. |
 | Declare the actual author in image metadata. Use `Liakhovskyi Vladyslav` for these images. | Authorship should be explicit, not inferred from the organization or CI actor. |
 | Use Go for necessary custom logic, with named functions, strict golangci-lint, gofmt and go fix checks. | Keep the small amount of custom code readable and checked. |
-| Validate PR, push and manual runs without publishing. Publish releases from tags after checks pass. | Publication has an explicit trigger and uses the same validation gates. |
+| Validate PRs, default-branch pushes and manual runs. Publish releases from tags after checks pass. | Avoid duplicate push and PR checks on working branches while keeping default-branch validation and release preparation. |
 | Use `v`-prefixed release tags by default. Let consumers change the tag filter. | Keep our convention without imposing it on every project. |
 | Use the official ready-release-go plugin for release preparation. | Reuse release PR and changelog automation. |
 | Add daily Updatecli dependency PRs. | Keep updates visible and let CI check them before merging. |

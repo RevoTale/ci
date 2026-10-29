@@ -1,5 +1,11 @@
 when:
-  - event: [push, pull_request, manual, tag]
+  # Check working branches through PRs; validate the merged default branch separately.
+  - event: [pull_request, manual]
+  # Tags are a separate pipeline, so release validation must not be skipped.
+  - event: tag
+    ref: refs/tags/v*
+  - event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
 
 depends_on: [validate]
 
