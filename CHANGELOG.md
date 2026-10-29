@@ -8,6 +8,7 @@
 
 ### Misc
 
+- fix(release): publish shared Updatecli policy with images ([c107fac](https://github.com/RevoTale/ci/commit/c107fac6fef6c080dadcf0c42f6970b4f566e290))
 - ci: avoid duplicate branch push and pull request checks ([0e81d4c](https://github.com/RevoTale/ci/commit/0e81d4cfe0978f5dd2ae7ac052faa15bd9b5c072))
 - 🎉 Release 0.1.1 [[#3](https://github.com/RevoTale/ci/pull/3)]
 - Merge branch 'origin/main' into 'next-release/main' ([84a0ecb](https://github.com/RevoTale/ci/commit/84a0ecb0a75c277272ab5f1f9c8a815147518bd2))
