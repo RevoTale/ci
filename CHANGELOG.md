@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.1](https://github.com/RevoTale/ci/releases/tag/v0.1.1) - 2026-10-29
+## [0.1.4](https://github.com/RevoTale/ci/releases/tag/v0.1.4) - 2026-10-30
 
 ### ❤️ Thanks to all contributors! ❤️
 
@@ -8,6 +8,20 @@
 
 ### Misc
 
+- docs(updatecli): record published runner and policy versions ([6e5b537](https://github.com/RevoTale/ci/commit/6e5b5371a8c5135afa93ececad4cbdc5b0fb380b))
+
+## [0.1.1](https://github.com/RevoTale/ci/releases/tag/v0.1.1) - 2026-10-29
+
+### ❤️ Thanks to all contributors! ❤️
+
+@Liakhovskyi Vladyslav, @l-you, @oauth
+
+### Misc
+
+- fix(release): publish shared Updatecli policy with images ([c107fac](https://github.com/RevoTale/ci/commit/c107fac6fef6c080dadcf0c42f6970b4f566e290))
+- ci: avoid duplicate branch push and pull request checks ([0e81d4c](https://github.com/RevoTale/ci/commit/0e81d4cfe0978f5dd2ae7ac052faa15bd9b5c072))
+- 🎉 Release 0.1.1 [[#3](https://github.com/RevoTale/ci/pull/3)]
+- Merge branch 'origin/main' into 'next-release/main' ([84a0ecb](https://github.com/RevoTale/ci/commit/84a0ecb0a75c277272ab5f1f9c8a815147518bd2))
 - feat(ci): add reusable Updatecli dependency policy and runner ([8b9e876](https://github.com/RevoTale/ci/commit/8b9e87620c2e2369beae1144636a278d5f23cfb0))
 - docs(ci): record decisions and make step images explicit ([1af8082](https://github.com/RevoTale/ci/commit/1af80826be1ccc031f56fd4eced630f52a035f72))
 
