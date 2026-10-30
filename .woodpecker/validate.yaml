@@ -53,5 +53,5 @@ steps:
       # Parse the shared policy without pushing branches or creating PRs.
       - >-
         updatecli --disable-version-check manifest validate --strict
-        --config policies/dependencies/updatecli.yaml
+        --config policies/dependencies/updatecli.d
         --values policies/dependencies/values.yaml

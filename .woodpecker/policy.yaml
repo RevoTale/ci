@@ -25,7 +25,7 @@ steps:
       # Policy.yaml supplies the version. Existing versions are not overwritten.
       - >-
         updatecli --disable-version-check manifest push
-        --config policies/dependencies/updatecli.yaml
+        --config policies/dependencies/updatecli.d
         --values policies/dependencies/values.yaml
         --policy policies/dependencies/Policy.yaml
         --tag ghcr.io/revotale/ci/policies/dependencies
