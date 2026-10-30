@@ -19,6 +19,10 @@ steps:
 
   - name: publish-policy
     image: ghcr.io/updatecli/updatecli:v0.123.0
+    # Match docker login so its owner-only credentials remain private.
+    backend_options:
+      docker:
+        user: "0:0"
     environment:
       DOCKER_CONFIG: .registry-auth
     commands:
