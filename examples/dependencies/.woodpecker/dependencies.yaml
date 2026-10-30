@@ -7,8 +7,7 @@ when:
 
 steps:
   - name: update-dependencies
-    # First planned release containing the Updatecli runner; publish before use.
-    image: ghcr.io/revotale/ci/updatecli:v0.1.1
+    image: ghcr.io/revotale/ci/updatecli:v0.1.3
     environment:
       # Public repositories also need authentication to push branches and open PRs.
       UPDATECLI_GITHUB_TOKEN:
