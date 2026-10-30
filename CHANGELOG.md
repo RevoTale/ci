@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.4](https://github.com/RevoTale/ci/releases/tag/v0.1.4) - 2026-10-30
+
+### ❤️ Thanks to all contributors! ❤️
+
+@Liakhovskyi Vladyslav
+
+### Misc
+
+- docs(updatecli): record published runner and policy versions ([6e5b537](https://github.com/RevoTale/ci/commit/6e5b5371a8c5135afa93ececad4cbdc5b0fb380b))
+
 ## [0.1.1](https://github.com/RevoTale/ci/releases/tag/v0.1.1) - 2026-10-29
 
 ### ❤️ Thanks to all contributors! ❤️
