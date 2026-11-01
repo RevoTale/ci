@@ -27,6 +27,13 @@ steps:
       - >-
         woodpecker-cli --disable-update-check lint --strict
         examples/task-workflow.yaml
+      - >-
+        woodpecker-cli --disable-update-check lint --strict
+        examples/checks-services.yaml
+      - >-
+        woodpecker-cli --disable-update-check lint --strict
+        --plugins-privileged=ghcr.io/revotale/ci/buildx:v0.1.3
+        examples/checks-dockerfile.yaml
 
   - name: check-format-and-fixes
     image: golang:1.27.2-trixie
