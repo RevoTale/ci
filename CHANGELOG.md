@@ -8,6 +8,7 @@
 
 ### Misc
 
+- docs(ci): add Task check environment examples ([53051d9](https://github.com/RevoTale/ci/commit/53051d920d2745791770893687d259a0e99b2ca4))
 - ci: simplify consumer workflows and reuse event filters ([e402f15](https://github.com/RevoTale/ci/commit/e402f1577ae41f9f50293f92bf4d78071754f5db))
 
 ## [0.1.5](https://github.com/RevoTale/ci/releases/tag/v0.1.5) - 2026-11-01
