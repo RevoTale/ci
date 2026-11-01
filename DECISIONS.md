@@ -9,8 +9,8 @@ Current agreed decisions. Implementation may still be pending.
 | Prefer official plugins, images and native configuration. | Keep dependencies and custom code small. No Bash helper scripts. |
 | Build shared functionality in `RevoTale/ci`. Extract to `woodpecker-toolkit` only when it helps other people too. | Sharing code between our own repos alone does not justify another dependency. |
 | Write the full image and version in each step, without image anchors. | See what each step uses, change versions independently when bugs occur, and see exactly which steps a dependency bump affects in the Git diff. |
-| Use Taskfile for project commands. Require `task lint` and `task test:unit`, with explicit `commands` in workflow steps. | Local development and CI use the same commands. A runner wrapper would not enforce the workflow structure. |
-| Add optional Task commands as explicit workflow steps when the project implements that capability. Remove unused steps and update their dependencies. Use native plugins for image builds and publication. | Keep a consistent contract without empty tasks or extra custom code. |
+| Use Taskfile for project commands. Require `task lint` and `task test:unit`. Invoke tasks explicitly through workflow `commands` or Dockerfile `RUN`. | Local development and CI use the same commands. |
+| Add optional Task commands when the project implements that capability. Invoke each check once through workflow steps or Dockerfile targets. Use native plugins for image builds and publication. | Keep a consistent contract without empty tasks or extra custom code. |
 | Prefer Debian Trixie for our toolchain. Allow Alpine where appropriate and scratch or distroless for suitable runtime images. | Keep environments consistent without forcing a full distribution into every image. |
 | Manage Task through Go module tools and install its binary into the toolchain image. | Keep the tool version in the module and make `task` directly available. |
 | Run independent checks in parallel, once per pipeline for the same inputs and environment. Share validation across artifact workflows instead of repeating it in each workflow or matrix entry. | Work that only needs to run once must not be duplicated. |
@@ -31,6 +31,6 @@ Current agreed decisions. Implementation may still be pending.
 | Mark AI involvement as `AI: advisory`. | Keep attribution consistent with our working agreement. |
 | Reuse a versioned Updatecli policy through a short project config. | Keep project integration minimal and document it so AI agents can integrate it too. |
 | Require `forge_token` for dependency PRs, including public repositories. | Publishing branches and PRs needs authentication. No separate preview mode for now. |
-| Provide a minimal checks example in README and two alternative workflows for Docker images and file artifacts. Add integration and release steps only when needed. | Keep consumer setup small without running duplicate workflows. |
+| Provide a minimal start, alternative check environments, and separate examples for Docker images and file artifacts. Add optional capabilities only when needed. | Keep consumer setup small without running duplicate workflows. |
 | Reuse repeated event filters and settings through YAML anchors within each file. Keep images explicit. | Keep local rules consistent while showing each step's image and version. |
 | Keep build, artifact testing and publication separate. Do not repeat completed checks through Task dependencies or rebuild file artifacts during publication. | Test the produced artifact and publish it without repeating work. |

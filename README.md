@@ -44,6 +44,23 @@ steps:
 
 Both checks run in parallel, once per pipeline.
 
+## Choose how checks run
+
+| Environment | Use when | Example |
+| --- | --- | --- |
+| Go and Task | The base image provides everything your tasks need. | Minimal start above |
+| Project toolchain and services | Checks need extra tools or PostgreSQL. | [Services](examples/checks-services.yaml) |
+| Dockerfile targets | Keep tool installation and checks in the repository without publishing a toolchain image. | [Dockerfile checks](examples/checks-dockerfile.yaml) |
+
+These are alternatives. Run each check once.
+
+The Taskfile contract is the same: `task lint`, `task test:unit`,
+and `task test:integration` when needed. Invoke tasks through workflow
+`commands` or Dockerfile `RUN`.
+
+See [check environments](docs/check-environments.md) before connecting
+these examples to build and publication.
+
 ## Add builds when needed
 
 Replace the minimal workflow with one example:

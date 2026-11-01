@@ -1,0 +1,40 @@
+# Copy to .woodpecker/validate.yaml.
+# Replace the example image with your published toolchain.
+# It must contain the tools required by your Taskfile.
+when:
+  - event: [pull_request, manual]
+  - event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+  - event: tag
+    ref: refs/tags/v*
+
+services:
+  - name: postgres
+    image: postgres:18.6-trixie
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: atlas_dev
+
+steps:
+  - name: lint
+    image: ghcr.io/your-org/your-project/ci:1.0.0
+    depends_on: []
+    commands:
+      - task lint
+
+  - name: unit
+    image: ghcr.io/your-org/your-project/ci:1.0.0
+    depends_on: []
+    commands:
+      - task test:unit
+
+  - name: integration
+    image: ghcr.io/your-org/your-project/ci:1.0.0
+    depends_on: []
+    environment:
+      TEST_POSTGRES_ADMIN_DSN: postgres://test:test@postgres:5432/atlas_dev?sslmode=disable
+      ATLAS_DEV_DATABASE_URL: postgres://test:test@postgres:5432/atlas_dev?sslmode=disable&search_path=public
+    commands:
+      # The task waits for PostgreSQL before running checks.
+      - task test:integration
