@@ -40,7 +40,7 @@ steps:
     settings:
       <<: *build-settings
       target: artifact-test
-      platforms: linux/arm64
+      # Omit platforms to test on the builder's native platform.
       dry_run: true
       cache_to: type=local,dest=.build-cache,mode=max
 
@@ -52,7 +52,7 @@ steps:
     settings:
       <<: *build-settings
       target: release
-      platforms: linux/arm64,linux/amd64
+      # PR, push and manual checks build only the native platform.
       dry_run: true
       cache_from: 'type=local\,src=.build-cache'
 

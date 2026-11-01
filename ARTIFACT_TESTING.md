@@ -7,4 +7,6 @@
 - For simple tool checks, we chose Dockerfile targets instead: `artifact-test` extends the complete runtime stage and checks Go and Task through `RUN`.
 - CI then builds `release`, reusing matching cached layers. Test layers stay out of the published image.
 - This keeps the workflow based on standard build tooling and configuration, without our own scripts. The pattern works with Docker and Kubernetes agents; builder setup remains separate.
-- We test arm64 by default; testing all published platforms is optional.
+- One native platform is enough for default checks. Artifact tests and
+  non-release builds use the builder's native platform; release publication
+  builds ARM64 and AMD64. Testing additional platforms is optional.

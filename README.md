@@ -20,10 +20,12 @@ Images support ARM64 and AMD64. Policy versions are independent of image version
 
 ## Connect a project
 
-1. Copy the [workflow example](examples/woodpecker.yaml) into your repository.
-2. Set the image repository, metadata and explicit tool image versions.
+1. Choose the [Docker workflow](examples/woodpecker.yaml) or
+   [Task workflow](examples/task-workflow.yaml).
+2. Set explicit tool image versions and project-specific settings.
 3. Provide `task lint` and `task test:unit`.
-4. Add `artifact-test` and `release` targets to your Dockerfile.
+4. For Docker images, add `artifact-test` and `release` targets.
+   For Task commands, keep only the capabilities your project implements.
 5. Configure the agent and secrets below.
 
 The YAML belongs to your project. There is no remote workflow include,
@@ -33,18 +35,26 @@ Add `task test:integration`, `task build`, `task test:artifact`,
 `task publish` and `task release` only when the project needs them.
 Native plugins can handle image builds and publication.
 
-## How the workflow runs
+See [optional steps](docs/optional-steps.md) for dependencies,
+environment setup and examples of removing unused capabilities.
+
+## How the Docker workflow runs
 
 ```mermaid
 flowchart TD
     A["PR · main push · manual · v* tag"] --> L["task lint"]
     A --> U["task test:unit"]
-    L --> T["artifact-test target · ARM64"]
+    L --> T["artifact-test target · native platform"]
     U --> T
     T --> E{"Event"}
-    E -->|"PR / push / manual"| B["Build release target · ARM64 + AMD64"]
+    E -->|"PR / push / manual"| B["Build release target · native platform"]
     E -->|"v* tag"| P["Build and publish · ARM64 + AMD64"]
 ```
+
+Checks use the builder's native platform. Only release publication builds
+ARM64 and AMD64. Additional check platforms are an explicit project choice.
+See [optional steps](docs/optional-steps.md) for integration tests and
+the Task workflow.
 
 Working-branch pushes do not duplicate PR checks. Each release tag runs
 its own checks before publishing. Other tags are ignored.

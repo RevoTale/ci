@@ -1,0 +1,57 @@
+# Copy to .woodpecker.yaml. Remove capabilities your project does not use.
+# This image provides Go and Task; choose project-specific images when needed.
+when:
+  - event: [pull_request, manual]
+  - event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+  - event: tag
+    ref: refs/tags/v*
+
+steps:
+  - name: lint
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: []
+    commands: [task lint]
+
+  - name: unit
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: []
+    commands: [task test:unit]
+
+  # Optional. Add services required by these tests to this workflow.
+  - name: integration
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: []
+    commands: [task test:integration]
+
+  # Optional. Write artifacts into the shared workspace, for example dist/.
+  - name: build
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: [lint, unit, integration]
+    commands: [task build]
+
+  # Optional. Check the built files without rebuilding them.
+  - name: artifact
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: [build]
+    commands: [task test:artifact]
+
+  # Optional. Upload the tested files.
+  # Add destination-specific secrets here, available only to tag events.
+  - name: publish
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: [artifact]
+    when:
+      - event: tag
+        ref: refs/tags/v*
+    commands: [task publish]
+
+  # Optional. Publish release information after artifact upload succeeds.
+  # Add forge credentials here if the task needs them.
+  - name: release
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: [publish]
+    when:
+      - event: tag
+        ref: refs/tags/v*
+    commands: [task release]
