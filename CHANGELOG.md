@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.6](https://github.com/RevoTale/ci/releases/tag/v0.1.6) - 2026-11-01
+
+### ❤️ Thanks to all contributors! ❤️
+
+@Liakhovskyi Vladyslav
+
+### Misc
+
+- ci: simplify consumer workflows and reuse event filters ([e402f15](https://github.com/RevoTale/ci/commit/e402f1577ae41f9f50293f92bf4d78071754f5db))
+
 ## [0.1.5](https://github.com/RevoTale/ci/releases/tag/v0.1.5) - 2026-11-01
 
 ### ❤️ Thanks to all contributors! ❤️
