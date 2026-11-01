@@ -1,14 +1,17 @@
-# Copy to .woodpecker.yaml; change repo and metadata for your project.
-when:
-  # Check working branches through PRs; validate the merged default branch separately.
-  - event: [pull_request, manual]
-  # Tags are a separate pipeline, so release validation must not be skipped.
-  - event: tag
-    ref: refs/tags/v*
-  - event: push
+# Choose this workflow for Docker images.
+# It already includes lint and unit tests.
+variables:
+  - &pr-and-manual
+    event: [pull_request, manual]
+
+  - &default-branch-push
+    event: push
     branch: ${CI_REPO_DEFAULT_BRANCH}
 
-variables:
+  - &release-tag
+    event: tag
+    ref: refs/tags/v*
+
   - &build-settings
     context: .
     dockerfile: Dockerfile
@@ -17,6 +20,11 @@ variables:
     description: Replace with the purpose of this image
     authors: Liakhovskyi Vladyslav
     licenses: MIT
+
+when:
+  - *pr-and-manual
+  - *default-branch-push
+  - *release-tag
 
 steps:
   - name: lint
@@ -47,7 +55,8 @@ steps:
     image: ghcr.io/revotale/ci/buildx:v0.1.0
     depends_on: [test-image]
     when:
-      - event: [push, pull_request, manual]
+      - *pr-and-manual
+      - *default-branch-push
     settings:
       <<: *build-settings
       target: release
@@ -59,8 +68,7 @@ steps:
     image: ghcr.io/revotale/ci/buildx:v0.1.0
     depends_on: [test-image]
     when:
-      - event: tag
-        ref: refs/tags/v*
+      - *release-tag
     settings:
       <<: *build-settings
       target: release

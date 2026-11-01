@@ -18,7 +18,50 @@ Workflows stay in each repository; images and dependency policies are reused.
 
 Images support ARM64 and AMD64. Policy versions are independent of image versions.
 
-## Connect a project
+## Minimal start
+
+Provide `task lint` and `task test:unit`, then create `.woodpecker.yaml`:
+
+```yaml
+when:
+  - event: [pull_request, manual]
+  - event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+  - event: tag
+    ref: refs/tags/v*
+
+steps:
+  - name: lint
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: []
+    commands: [task lint]
+
+  - name: unit
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: []
+    commands: [task test:unit]
+```
+
+Both checks run in parallel, once per pipeline.
+
+## Add builds when needed
+
+Replace the minimal workflow with one example:
+
+| What you produce | Example |
+| --- | --- |
+| Docker images | [Docker workflow](examples/woodpecker.yaml) |
+| Binaries, archives or other files | [Task workflow](examples/task-workflow.yaml) |
+
+Each example already includes lint and unit tests.
+Do not install it alongside the minimal workflow or the other example.
+
+Add [integration tests or release publication](docs/optional-steps.md)
+only when needed. For projects producing both images and files, share
+the checks as described in that guide.
+
+## Configure the selected workflow
+
 
 1. Choose the [Docker workflow](examples/woodpecker.yaml) or
    [Task workflow](examples/task-workflow.yaml).

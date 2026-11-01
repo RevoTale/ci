@@ -1,12 +1,3 @@
-when:
-  # Check working branches through PRs; validate the merged default branch separately.
-  - event: [pull_request, manual]
-  # Tags are a separate pipeline, so release validation must not be skipped.
-  - event: tag
-    ref: refs/tags/v*
-  - event: push
-    branch: ${CI_REPO_DEFAULT_BRANCH}
-
 depends_on: [validate]
 
 matrix:
@@ -25,6 +16,17 @@ matrix:
       IMAGE_DESCRIPTION: Updatecli with Go for dependency pull requests
 
 variables:
+  - &pr-and-manual
+    event: [pull_request, manual]
+
+  - &default-branch-push
+    event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+
+  - &release-tag
+    event: tag
+    ref: refs/tags/v*
+
   - &build-settings
     context: ${BUILD_CONTEXT}
     dockerfile: ${DOCKERFILE}
@@ -33,6 +35,11 @@ variables:
       - org.opencontainers.image.description=${IMAGE_DESCRIPTION}
       - org.opencontainers.image.authors=Liakhovskyi Vladyslav
       - org.opencontainers.image.licenses=MIT
+
+when:
+  - *pr-and-manual
+  - *default-branch-push
+  - *release-tag
 
 steps:
   - name: test-image
@@ -48,7 +55,8 @@ steps:
     image: woodpeckerci/plugin-docker-buildx:6.1.2
     depends_on: [test-image]
     when:
-      - event: [push, pull_request, manual]
+      - *pr-and-manual
+      - *default-branch-push
     settings:
       <<: *build-settings
       target: release
@@ -60,8 +68,7 @@ steps:
     image: woodpeckerci/plugin-docker-buildx:6.1.2
     depends_on: [test-image]
     when:
-      - event: tag
-        ref: refs/tags/v*
+      - *release-tag
     settings:
       <<: *build-settings
       target: release

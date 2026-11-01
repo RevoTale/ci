@@ -23,25 +23,97 @@ CI does not discover them automatically; a configured but missing task fails.
 flowchart LR
     L["lint"] --> B["build"]
     U["unit"] --> B
-    I["integration"] --> B
+    I["integration · optional"] -.-> B
     B --> A["test:artifact"]
     A --> P["publish · tag only"]
-    P --> R["release · tag only"]
+    P -.-> R["release · optional, tag only"]
 ```
 
 Only lint and unit are mandatory. The diagram shows all optional capabilities.
 
-## Remove unused steps
+## Add integration tests
 
-Delete the step and update its downstream `depends_on`.
+Add this step to the selected workflow and provision any services it needs:
 
-- Without integration tests: `build` depends on `[lint, unit]`.
-- Without artifact tests: `publish` depends on `[build]`.
-- Without publication or releases: remove `publish` and `release`.
-- For checks only: keep `lint`, `unit` and any integration tests.
+```yaml
+  - name: integration
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: []
+    commands: [task test:integration]
+```
 
-Do not add empty Task commands to satisfy the example.
-Keep all required checks upstream of publication.
+Add `integration` to the existing dependencies of the first build step:
+
+- Task workflow: `build.depends_on: [lint, unit, integration]`.
+- Docker workflow: `test-image.depends_on: [lint, unit, integration]`.
+
+Integration tests run once, in parallel with lint and unit tests.
+
+## Add release publication
+
+For the Task workflow, add this step after `publish`:
+
+```yaml
+  - name: release
+    image: ghcr.io/revotale/ci/base:v0.1.3
+    depends_on: [publish]
+    when:
+      - *release-tag
+    commands: [task release]
+```
+
+The `release-tag` anchor is already defined in the example.
+Provide the forge credentials expected by the task, for tag events only.
+
+This task publishes release information; it must not rebuild or upload
+the artifacts again. Artifact upload belongs to `publish`.
+
+For Docker workflows, depend on `publish-image` instead of `publish`.
+
+## Keep checks in one place
+
+Choose one starting workflow. Do not combine the complete examples:
+both already contain lint and unit tests.
+
+When several artifact workflows need the same checks, move those checks
+into one `.woodpecker/validate.yaml` and remove their local copies.
+Each artifact workflow then declares:
+
+```yaml
+depends_on: [validate]
+```
+
+Remove references to the moved checks from step-level `depends_on`;
+the workflow dependency now gates all artifact steps.
+Keep validation event filters compatible with the dependent workflows.
+See our [validation workflow](../.woodpecker/validate.yaml) and
+[image matrix](../.woodpecker/image.yaml).
+
+```mermaid
+flowchart LR
+    V["Shared validation · once"] --> D["Docker image workflow"]
+    V --> F["File artifact workflow"]
+```
+
+Only validation is shared here. Keep each file artifact's
+build → test → publish steps in the same workflow so they share its files.
+
+Do not repeat the same check through both Task and a plugin.
+Check Task dependencies too: `build` must not rerun tests already completed
+by CI, and `publish` must not rebuild the tested artifact.
+
+PR, default-branch push and release-tag pipelines remain separate.
+There is no cross-pipeline reuse of successful checks.
+
+## Reuse event filters locally
+
+The examples define event mappings as YAML anchors and reuse them in `when`.
+Change the release-tag filter once per file.
+
+Anchors do not cross file or repository boundaries. They reduce local
+duplication; they do not centrally enforce organization policy.
+
+Keep image names and versions explicit in every step.
 
 ## Configure the environment
 
@@ -59,13 +131,6 @@ The release version is available as `CI_COMMIT_TAG`.
 
 Use the Buildx example for image builds, artifact checks and publication.
 Do not duplicate these operations with Task steps.
-
-To add integration tests, copy the `integration` step and add it to
-`test-image.depends_on`:
-
-```yaml
-depends_on: [lint, unit, integration]
-```
 
 Artifact tests and non-release builds omit `platforms`, using the BuildKit
 builder's native platform. With our local builder, this is the CI agent's
