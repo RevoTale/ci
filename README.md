@@ -1,42 +1,113 @@
 # RevoTale CI
 
-Shared Go/Task toolchain and image-build policy for RevoTale projects.
+Shared tools and CI conventions for RevoTale projects.
+Workflows stay in each repository; images and dependency policies are reused.
 
-- `ghcr.io/revotale/ci/base:v0.1.0`: Go and Task on Debian Trixie.
-- `ghcr.io/revotale/ci/buildx:v0.1.0`: official Buildx 6.1.2 with required `title`, `description`, `authors`, and `licenses` settings.
+[Workflow example](examples/woodpecker.yaml) ·
+[Dependency updates](docs/integrate-dependency-updates.md) ·
+[Releases](https://github.com/RevoTale/ci/releases)
 
-## Use
+## What you can reuse
 
-Copy [the workflow](examples/woodpecker.yaml) into your project's `.woodpecker.yaml`. Set its image repository and metadata. Keep image versions explicit so Renovate can update them.
+| Component | Purpose |
+| --- | --- |
+| `ghcr.io/revotale/ci/base:v0.1.3` | Go and Task on Debian Trixie. |
+| `ghcr.io/revotale/ci/buildx:v0.1.3` | Official Buildx plugin with required image metadata. |
+| `ghcr.io/revotale/ci/updatecli:v0.1.3` | Updatecli with Go and Git for dependency updates. |
+| `ghcr.io/revotale/ci/policies/dependencies:0.1.0` | Shared dependency discovery and GitHub PR configuration. |
 
-The images are reused directly. The YAML is a starting point owned by each project, not a remotely included workflow. No configuration extension or generator is required.
+Images support ARM64 and AMD64. Policy versions are independent of image versions.
 
-Provide `task lint` and `task test:unit`. Add `task test:integration`, `task build`, `task test:artifact`, `task publish`, or `task release` only when that capability belongs to the project. Native plugins handle container builds and publication.
+## Connect a project
 
-The Dockerfile needs `artifact-test` and `release` targets sharing the same runtime stage. See [our real Dockerfile](images/go-task/Dockerfile) and [why we use this pattern](ARTIFACT_TESTING.md).
+1. Copy the [workflow example](examples/woodpecker.yaml) into your repository.
+2. Set the image repository, metadata and explicit tool image versions.
+3. Provide `task lint` and `task test:unit`.
+4. Add `artifact-test` and `release` targets to your Dockerfile.
+5. Configure the agent and secrets below.
 
-## Setup once
+The YAML belongs to your project. There is no remote workflow include,
+configuration extension or generator.
 
-- Configure the agent to permit the **exact Buildx plugin image** used in the workflow. Our wrapper still starts Docker and needs the same builder privileges as the official plugin. Use an isolated CI machine; don't expose a production Docker socket to jobs.
-- Provide `registry_username` and `registry_password` for **tag events only**, scoped to the repositories that publish. Give the registry account push access to their image repositories.
-- For release PRs, use [our release workflow](.woodpecker/release.yaml) and [config](release-config.ts). Provide `forge_token` for **push events only**, with repository contents and pull-request write access. On GitHub, private-repository reads also need access.
-- Require approval for untrusted pull requests in Woodpecker. PR checks receive no publication or release credentials.
-- Keep registries and forge-specific credentials in Woodpecker. Change the registry/repository values and secret contents when moving platforms.
+Add `task test:integration`, `task build`, `task test:artifact`,
+`task publish` and `task release` only when the project needs them.
+Native plugins can handle image builds and publication.
 
-## Behavior
+## How the workflow runs
 
-PR, default-branch push and manual runs validate and build without publishing. Pushes to other branches do not duplicate PR checks. A `v*` tag validates, tests and publishes that exact tag. Other tags do not start these workflows. Change the workflow and publication tag filters together if a project uses another convention. Artifact tests run on ARM64 by default; release images include ARM64 and AMD64.
+```mermaid
+flowchart TD
+    A["PR · main push · manual · v* tag"] --> L["task lint"]
+    A --> U["task test:unit"]
+    L --> T["artifact-test target · ARM64"]
+    U --> T
+    T --> E{"Event"}
+    E -->|"PR / push / manual"| B["Build release target · ARM64 + AMD64"]
+    E -->|"v* tag"| P["Build and publish · ARM64 + AMD64"]
+```
 
-The cache is a workspace directory shared by steps in one workflow. It is not a persistent or cross-project cache. Separate workflows do not share it.
+Working-branch pushes do not duplicate PR checks. Each release tag runs
+its own checks before publishing. Other tags are ignored.
 
-Required metadata makes omissions visible before a build starts; it does not validate authorship or license correctness. Projects own those values. Plugins cannot enforce policy against workflows that bypass them.
+Artifact checks run during the Dockerfile build. Both targets share
+the runtime stage; matching layers are reused through Buildx cache.
 
-For multiple images, use [our matrix](.woodpecker/image.yaml). Each entry declares its context, Dockerfile and complete registry path.
+Cache is shared between steps in one workflow. Persistent and
+cross-project caching require separate configuration.
 
-Develop shared functionality here. Extract it into [woodpecker-toolkit](https://github.com/RevoTale/woodpecker-toolkit) only when it provides clear value outside RevoTale.
+[Real Dockerfile](images/go-task/Dockerfile) ·
+[Why tests live in Dockerfile targets](ARTIFACT_TESTING.md) ·
+[Multiple images with a matrix](.woodpecker/image.yaml)
+
+## Agent and credentials
+
+Use a dedicated CI machine and require approval for untrusted PRs.
+Allow the exact Buildx image used by the workflow: our wrapper needs
+the same builder privileges as the official plugin.
+
+| Secret | Used for | Allowed events |
+| --- | --- | --- |
+| `registry_username`, `registry_password` | Publishing images and policies | `tag` |
+| `forge_token` | Release preparation | Default-branch `push` |
+| `forge_token` | Dependency PRs, when enabled | `cron`, `manual` |
+
+Registry credentials need push access. Forge credentials need repository
+contents and pull-request write access. Do not expose them to PR checks.
+
+For release preparation, use our [workflow](.woodpecker/release.yaml)
+and [configuration](release-config.ts).
 
 ## Dependency updates
 
-Use the shared Updatecli policy and runner with two project files. Follow the [integration guide](docs/integrate-dependency-updates.md), including publication prerequisites and Woodpecker setup.
+```mermaid
+flowchart LR
+    A["Daily cron / manual"] --> B["Updatecli runner + shared policy"]
+    B --> C["Dependency PR"]
+    C --> D["Project CI + review"]
+```
 
-Push and PR checks are deduplicated by event filters, not a shared key. A release tag still validates its commit: Woodpecker does not reuse a successful push pipeline through `depends_on`. `concurrency` queues runs, and cancellation of previous pipelines only affects active runs of the same event/context; neither substitutes for release validation.
+Connect with two files: an Updatecli compose file and a Woodpecker workflow.
+There is no automerge.
+
+Follow the [integration guide](docs/integrate-dependency-updates.md)
+for files, registry access, secrets and cron setup.
+The current policy uses GitHub; do not assign the same dependencies
+to both Updatecli and another updater.
+
+## What is enforced
+
+Our Buildx wrapper requires `title`, `description`, `authors` and `licenses`.
+It checks that values are present, not that they are correct.
+A workflow that bypasses the wrapper also bypasses these checks.
+
+Keep image versions explicit in every step so dependency updates show
+exactly which steps change.
+
+## For contributors and AI agents
+
+Read [AGENTS.md](AGENTS.md) and [DECISIONS.md](DECISIONS.md) before proposing changes.
+For project integration, start with the linked examples and guides.
+
+Build shared functionality here. Propose extraction into
+[woodpecker-toolkit](https://github.com/RevoTale/woodpecker-toolkit)
+only when it provides clear value outside RevoTale.
