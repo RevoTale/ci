@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.5](https://github.com/RevoTale/ci/releases/tag/v0.1.5) - 2026-11-01
+
+### ❤️ Thanks to all contributors! ❤️
+
+@Liakhovskyi Vladyslav
+
+### Misc
+
+- ci: keep checks native and document optional Task steps ([6283a6f](https://github.com/RevoTale/ci/commit/6283a6fe5f2b458316a6e4420c2bec5adf0e15fb))
+- docs(readme): clarify setup and illustrate CI workflows ([2c2853c](https://github.com/RevoTale/ci/commit/2c2853cb84ca0196b8d60a41f540bd7c2741bcd5))
+
 ## [0.1.4](https://github.com/RevoTale/ci/releases/tag/v0.1.4) - 2026-10-30
 
 ### ❤️ Thanks to all contributors! ❤️
