@@ -3,7 +3,7 @@ variables:
     api_key:
       from_secret: forge_token
     target: ${CI_COMMIT_SHA}
-    title: ${CI_COMMIT_TAG}
+    title: "${CI_COMMIT_TAG}"
     note: CHANGELOG.md
 
 when:
@@ -53,7 +53,7 @@ steps:
 
   # Exercise this release through the normal consumer plugin interface.
   - name: build-consumer
-    image: ghcr.io/revotale/ci/buildx:${CI_COMMIT_TAG}
+    image: "ghcr.io/revotale/ci/buildx:${CI_COMMIT_TAG}"
     pull: true
     depends_on: [registry-logout]
     settings:
@@ -71,7 +71,7 @@ steps:
 
   # Inspect exported metadata without loading an image or publishing a fixture.
   - name: inspect-consumer
-    image: ghcr.io/revotale/ci/base:${CI_COMMIT_TAG}
+    image: "ghcr.io/revotale/ci/base:${CI_COMMIT_TAG}"
     pull: true
     depends_on: [build-consumer]
     commands:
@@ -79,7 +79,7 @@ steps:
 
   # Public consumers must resolve the policy without registry credentials.
   - name: verify-public-policy
-    image: ghcr.io/revotale/ci/updatecli:${CI_COMMIT_TAG}
+    image: "ghcr.io/revotale/ci/updatecli:${CI_COMMIT_TAG}"
     pull: true
     depends_on: [registry-logout]
     environment:
