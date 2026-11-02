@@ -3,8 +3,6 @@ FROM --platform=$BUILDPLATFORM golang:1.27.2-trixie@sha256:47667934874913a449b96
 
 WORKDIR /src
 COPY go.mod go.sum ./
-RUN ["go", "mod", "download"]
-
 COPY cmd ./cmd
 COPY internal ./internal
 
