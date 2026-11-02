@@ -20,8 +20,11 @@ tasks:
 
   fmt:
     desc: Format Go code
+    env:
+      GOFLAGS: -tags=integration
     cmds:
-      - gofmt -w .
+      # go fmt omits the build-tagged test-only package from ./... discovery.
+      - go fmt ./... ./tests/consumer
 
   fix:
     desc: Apply Go modernization fixes

@@ -35,26 +35,27 @@ steps:
         --plugins-privileged=ghcr.io/revotale/ci/buildx
         examples/checks-dockerfile.yaml
 
+  # Bootstrap with released tools; artifact tests build the next toolchain.
   - name: check-format-and-fixes
-    image: golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: []
     commands:
-      - go tool task fmt
-      - go tool task fix
+      - task fmt
+      - task fix
       # CI starts from a clean checkout; required updates must fail the check.
       - git diff --exit-code -- '*.go'
 
   - name: lint
-    image: golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: [check-format-and-fixes]
     commands:
-      - go tool task lint
+      - task lint
 
   - name: unit
-    image: golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: [check-format-and-fixes]
     commands:
-      - go tool task test:unit
+      - task test:unit
 
   - name: validate-dependency-policy
     image: ghcr.io/updatecli/updatecli:v0.123.0@sha256:5596883b1d8d8e174189a89467c9536b01f80ac26d260dc98eb2d19621caab31
