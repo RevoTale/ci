@@ -1,4 +1,4 @@
-FROM ghcr.io/revotale/ci/base:v0.1.3 AS tools
+FROM ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09 AS source
 
 WORKDIR /workspace
 
@@ -7,7 +7,6 @@ WORKDIR /workspace
 COPY go.mod go.sum ./
 RUN go mod download
 
-FROM tools AS source
 COPY . .
 
 FROM source AS lint

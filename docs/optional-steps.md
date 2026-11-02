@@ -37,7 +37,7 @@ Add this step to the selected workflow and provision any services it needs:
 
 ```yaml
   - name: integration
-    image: ghcr.io/revotale/ci/base:v0.1.3
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: []
     commands: [task test:integration]
 ```
@@ -55,7 +55,7 @@ For the Task workflow, add this step after `publish`:
 
 ```yaml
   - name: release
-    image: ghcr.io/revotale/ci/base:v0.1.3
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: [publish]
     when:
       - *release-tag

@@ -5,16 +5,17 @@ Workflows stay in each repository; images and dependency policies are reused.
 
 [Workflow example](examples/woodpecker.yaml) ·
 [Dependency updates](docs/integrate-dependency-updates.md) ·
+[Release flow](docs/release.md) ·
 [Releases](https://github.com/RevoTale/ci/releases)
 
 ## What you can reuse
 
 | Component | Purpose |
 | --- | --- |
-| `ghcr.io/revotale/ci/base:v0.1.3` | Go and Task on Debian Trixie. |
-| `ghcr.io/revotale/ci/buildx:v0.1.3` | Official Buildx plugin with required image metadata. |
-| `ghcr.io/revotale/ci/updatecli:v0.1.3` | Updatecli with Go and Git for dependency updates. |
-| `ghcr.io/revotale/ci/policies/dependencies:0.1.0` | Shared dependency discovery and GitHub PR configuration. |
+| `ghcr.io/revotale/ci/base` | Go and Task on Debian Trixie. |
+| `ghcr.io/revotale/ci/buildx` | Official Buildx plugin with required image metadata. |
+| `ghcr.io/revotale/ci/updatecli` | Updatecli with Go and Git for dependency updates. |
+| `ghcr.io/revotale/ci/policies/dependencies:0.2.0` | Shared dependency discovery and GitHub PR configuration. |
 
 Images support ARM64 and AMD64. Policy versions are independent of image versions.
 
@@ -32,12 +33,12 @@ when:
 
 steps:
   - name: lint
-    image: ghcr.io/revotale/ci/base:v0.1.3
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: []
     commands: [task lint]
 
   - name: unit
-    image: ghcr.io/revotale/ci/base:v0.1.3
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: []
     commands: [task test:unit]
 ```
@@ -138,14 +139,15 @@ the same builder privileges as the official plugin.
 | Secret | Used for | Allowed events |
 | --- | --- | --- |
 | `registry_username`, `registry_password` | Publishing images and policies | `tag` |
-| `forge_token` | Release preparation | Default-branch `push` |
+| `forge_token` | Release preparation and publication | Default-branch `push`, `tag` |
 | `forge_token` | Dependency PRs, when enabled | `cron`, `manual` |
 
 Registry credentials need push access. Forge credentials need repository
 contents and pull-request write access. Do not expose them to PR checks.
 
-For release preparation, use our [workflow](.woodpecker/release.yaml)
-and [configuration](release-config.ts).
+Default-branch pushes prepare release PRs and tag the checked commit.
+The tag pipeline publishes artifacts, runs consumer smoke checks, then publishes
+the release. See [release flow](docs/release.md).
 
 ## Dependency updates
 

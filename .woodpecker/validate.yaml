@@ -9,17 +9,17 @@ when:
 
 steps:
   - name: validate-workflows
-    image: woodpeckerci/woodpecker-cli:v3.19.0-alpine
+    image: woodpeckerci/woodpecker-cli:v3.19.0-alpine@sha256:27a77117e38d7bbdc380f0e90ff3ee4871ab1eefa78b5d9136a2c969fbecd9f4
     depends_on: []
     commands:
       # CLI lint does not read the server's privileged-plugin allowlist.
       # This declaration grants no runtime privileges.
       - >-
         woodpecker-cli --disable-update-check lint --strict
-        --plugins-privileged=woodpeckerci/plugin-docker-buildx:6.1.2
+        --plugins-privileged=woodpeckerci/plugin-docker-buildx
       - >-
         woodpecker-cli --disable-update-check lint --strict
-        --plugins-privileged=ghcr.io/revotale/ci/buildx:v0.1.0
+        --plugins-privileged=ghcr.io/revotale/ci/buildx
         examples/woodpecker.yaml
       - >-
         woodpecker-cli --disable-update-check lint --strict
@@ -32,11 +32,11 @@ steps:
         examples/checks-services.yaml
       - >-
         woodpecker-cli --disable-update-check lint --strict
-        --plugins-privileged=ghcr.io/revotale/ci/buildx:v0.1.3
+        --plugins-privileged=ghcr.io/revotale/ci/buildx
         examples/checks-dockerfile.yaml
 
   - name: check-format-and-fixes
-    image: golang:1.27.2-trixie
+    image: golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e
     depends_on: []
     commands:
       - go tool task fmt
@@ -45,19 +45,19 @@ steps:
       - git diff --exit-code -- '*.go'
 
   - name: lint
-    image: golang:1.27.2-trixie
+    image: golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e
     depends_on: [check-format-and-fixes]
     commands:
       - go tool task lint
 
   - name: unit
-    image: golang:1.27.2-trixie
+    image: golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e
     depends_on: [check-format-and-fixes]
     commands:
       - go tool task test:unit
 
   - name: validate-dependency-policy
-    image: ghcr.io/updatecli/updatecli:v0.123.0
+    image: ghcr.io/updatecli/updatecli:v0.123.0@sha256:5596883b1d8d8e174189a89467c9536b01f80ac26d260dc98eb2d19621caab31
     depends_on: []
     commands:
       # Parse the shared policy without pushing branches or creating PRs.
@@ -65,3 +65,10 @@ steps:
         updatecli --disable-version-check manifest validate --strict
         --config policies/dependencies/updatecli.d
         --values policies/dependencies/values.yaml
+
+  - name: test-release-tag
+    image: woodpeckerci/plugin-ready-release-go:4.1.2@sha256:42239ea8a6dd4981b1bcee93431050d4524e942d26ba2b14ec5112a708306143
+    depends_on: []
+    commands:
+      - npm rebuild --prefix /app --foreground-scripts esbuild
+      - /app/node_modules/.bin/tsx --test release-config.test.ts

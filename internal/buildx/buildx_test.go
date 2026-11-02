@@ -10,25 +10,23 @@ import (
 
 const testLicense = "MIT"
 
-func TestOptionalMetadata(t *testing.T) {
-	t.Parallel()
-
-	if err := parseMetadata(false, nil); err != nil {
-		t.Fatalf("optional metadata rejected: %v", err)
-	}
-}
-
 func TestMissingRequiredMetadata(t *testing.T) {
 	t.Parallel()
 
 	args := []string{
 		"--title", "Example",
 		"--description", "Example application",
+		"--authors", "RevoTale",
 		"--licenses", testLicense,
 	}
 
-	if err := parseMetadata(true, args); err == nil {
-		t.Fatal("expected missing authors to be rejected")
+	for index := 0; index < len(args); index += 2 {
+		incomplete := append([]string{}, args[:index]...)
+		incomplete = append(incomplete, args[index+2:]...)
+
+		if err := parseMetadata(incomplete); err == nil {
+			t.Errorf("expected missing %s to be rejected", args[index])
+		}
 	}
 }
 
@@ -42,7 +40,7 @@ func TestProvidedRequiredMetadata(t *testing.T) {
 		"--licenses", testLicense,
 	}
 
-	if err := parseMetadata(true, args); err != nil {
+	if err := parseMetadata(args); err != nil {
 		t.Fatalf("provided metadata rejected: %v", err)
 	}
 }
@@ -71,7 +69,7 @@ func TestImageLabelsEscapeCommas(t *testing.T) {
 	}
 }
 
-func TestImageLabelsSkipEmptyOptionalMetadata(t *testing.T) {
+func TestImageLabelsSkipExplicitEmptyMetadata(t *testing.T) {
 	t.Parallel()
 
 	fields := []metadataField{{name: "authors"}}
@@ -81,9 +79,9 @@ func TestImageLabelsSkipEmptyOptionalMetadata(t *testing.T) {
 	}
 }
 
-func parseMetadata(required bool, args []string) error {
+func parseMetadata(args []string) error {
 	p := newWrapper()
-	flags := p.metadataFlags(required)
+	flags := p.metadataFlags()
 
 	// Test CLI inputs independently of the parent process's environment.
 	for _, flag := range flags {

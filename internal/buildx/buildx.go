@@ -21,13 +21,13 @@ type wrapper struct {
 	metadata []metadataField
 }
 
-// Run adds optional or required OCI metadata settings to the official Buildx plugin.
-func Run(requireMetadata bool) {
+// Run adds required OCI metadata settings to the official Buildx plugin.
+func Run() {
 	p := newWrapper()
 
 	plugin.New(plugin.Options{
 		Name:    "docker-buildx",
-		Flags:   p.metadataFlags(requireMetadata),
+		Flags:   p.metadataFlags(),
 		Execute: p.runBuildx,
 	}).Run()
 }
@@ -43,7 +43,7 @@ func newWrapper() *wrapper {
 	}
 }
 
-func (p *wrapper) metadataFlags(required bool) []cli.Flag {
+func (p *wrapper) metadataFlags() []cli.Flag {
 	flags := make([]cli.Flag, 0, len(p.metadata))
 
 	for i := range p.metadata {
@@ -52,7 +52,7 @@ func (p *wrapper) metadataFlags(required bool) []cli.Flag {
 		flags = append(flags, &cli.StringFlag{
 			Name:        field.name,
 			Usage:       "OCI image " + field.name,
-			Required:    required,
+			Required:    true,
 			Sources:     cli.EnvVars("PLUGIN_" + strings.ToUpper(field.name)),
 			Destination: &field.value,
 		})

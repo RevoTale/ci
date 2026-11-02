@@ -54,3 +54,9 @@ Keep artifact build, artifact testing and publication together.
 Validation does not produce files consumed by another workflow.
 
 Do not also invoke `task ci` if it repeats the checks already declared here.
+
+## Build context
+
+Use `.dockerignore` to exclude `.git`, `.build-cache` and temporary credentials
+from the build context when using `COPY . .`. Cache output belongs outside the image.
+See this repository's [.dockerignore](../.dockerignore).

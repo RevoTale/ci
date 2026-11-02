@@ -4,19 +4,26 @@ tasks:
   lint:
     desc: Check Go code and formatting
     cmds:
-      - go tool golangci-lint run
+      - go tool golangci-lint run --build-tags=integration
 
   test:unit:
     desc: Run Go unit tests
     cmds:
       - go test ./...
 
+  test:integration:
+    desc: Verify metadata in the image built by the released wrapper
+    env:
+      CI_SMOKE_IMAGE: "{{.ROOT_DIR}}/.smoke-image"
+    cmds:
+      - go test -tags=integration -count=1 ./tests/consumer
+
   fmt:
     desc: Format Go code
     cmds:
-      - go fmt ./...
+      - gofmt -w .
 
   fix:
     desc: Apply Go modernization fixes
     cmds:
-      - go fix ./...
+      - go fix -tags=integration ./...

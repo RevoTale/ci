@@ -43,7 +43,7 @@ when:
 
 steps:
   - name: test-image
-    image: woodpeckerci/plugin-docker-buildx:6.1.2
+    image: woodpeckerci/plugin-docker-buildx:6.1.2@sha256:d26b69cbe748b8a219c707e7889d5ffb3f9214bc3c480c30fe857ff85954267c
     settings:
       <<: *build-settings
       target: artifact-test
@@ -52,7 +52,7 @@ steps:
       cache_to: type=local,dest=.build-cache,mode=max
 
   - name: build-image
-    image: woodpeckerci/plugin-docker-buildx:6.1.2
+    image: woodpeckerci/plugin-docker-buildx:6.1.2@sha256:d26b69cbe748b8a219c707e7889d5ffb3f9214bc3c480c30fe857ff85954267c
     depends_on: [test-image]
     when:
       - *pr-and-manual
@@ -65,7 +65,7 @@ steps:
       cache_from: 'type=local\,src=.build-cache'
 
   - name: publish-image
-    image: woodpeckerci/plugin-docker-buildx:6.1.2
+    image: woodpeckerci/plugin-docker-buildx:6.1.2@sha256:d26b69cbe748b8a219c707e7889d5ffb3f9214bc3c480c30fe857ff85954267c
     depends_on: [test-image]
     when:
       - *release-tag

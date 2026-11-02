@@ -28,20 +28,20 @@ when:
 
 steps:
   - name: lint
-    image: ghcr.io/revotale/ci/base:v0.1.0
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: []
     commands:
       - task lint
 
   - name: unit
-    image: ghcr.io/revotale/ci/base:v0.1.0
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: []
     commands:
       - task test:unit
 
   # Tests the complete runtime through the Dockerfile's artifact-test target.
   - name: test-image
-    image: ghcr.io/revotale/ci/buildx:v0.1.0
+    image: ghcr.io/revotale/ci/buildx:v0.1.5@sha256:2138543fab327ee4c3250f3f7cc66d1b6185c5180f1059719506e1f4fd9932a4
     depends_on: [lint, unit]
     settings:
       <<: *build-settings
@@ -52,7 +52,7 @@ steps:
 
   # Reuses matching runtime layers from test-image; test layers are not published.
   - name: build-image
-    image: ghcr.io/revotale/ci/buildx:v0.1.0
+    image: ghcr.io/revotale/ci/buildx:v0.1.5@sha256:2138543fab327ee4c3250f3f7cc66d1b6185c5180f1059719506e1f4fd9932a4
     depends_on: [test-image]
     when:
       - *pr-and-manual
@@ -65,7 +65,7 @@ steps:
       cache_from: 'type=local\,src=.build-cache'
 
   - name: publish-image
-    image: ghcr.io/revotale/ci/buildx:v0.1.0
+    image: ghcr.io/revotale/ci/buildx:v0.1.5@sha256:2138543fab327ee4c3250f3f7cc66d1b6185c5180f1059719506e1f4fd9932a4
     depends_on: [test-image]
     when:
       - *release-tag

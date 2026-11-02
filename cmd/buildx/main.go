@@ -4,5 +4,5 @@ package main
 import "github.com/RevoTale/ci/internal/buildx"
 
 func main() {
-	buildx.Run(true)
+	buildx.Run()
 }
