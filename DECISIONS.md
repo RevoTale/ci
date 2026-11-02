@@ -34,3 +34,9 @@ Current agreed decisions. Implementation may still be pending.
 | Provide a minimal start, alternative check environments, and separate examples for Docker images and file artifacts. Add optional capabilities only when needed. | Keep consumer setup small without running duplicate workflows. |
 | Reuse repeated event filters and settings through YAML anchors within each file. Keep images explicit. | Keep local rules consistent while showing each step's image and version. |
 | Keep build, artifact testing and publication separate. Do not repeat completed checks through Task dependencies or rebuild file artifacts during publication. | Test the produced artifact and publish it without repeating work. |
+| Create release tags at the checked CI commit and never move them. | A newer branch tip must not replace the commit that passed CI. |
+| Announce releases after artifact publication and consumer smoke succeed. | Consumers must be able to download and use the published components. |
+| Pin consumed images by version and multi-platform digest. | Keep tested inputs stable while dependency changes remain visible in Git. |
+| Test newly published components using the current release tag. Keep ordinary consumer references explicit. | Release smoke must exercise the new output, not an older tool version. |
+| Use the local shared policy in this repository and the published policy in consumers. | Avoid a publication dependency when maintaining the policy itself. |
+| Keep separate workflows for distinct triggers or image matrices; keep final publication and its checks together. | Make the release flow easy to follow without duplicating checks. |

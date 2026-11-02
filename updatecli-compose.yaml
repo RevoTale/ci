@@ -1,0 +1,26 @@
+policies:
+  - name: RevoTale CI dependencies
+    config:
+      - policies/dependencies/updatecli.d
+    values:
+      - policies/dependencies/values.yaml
+    valuesinline:
+      crawlers:
+        woodpecker:
+          filematch:
+            - .woodpecker.yml
+            - .woodpecker.yaml
+            - .woodpecker/*.yml
+            - .woodpecker/*.yaml
+            - .woodpecker/**/*.yml
+            - .woodpecker/**/*.yaml
+            - examples/*.yaml
+            - examples/dependencies/.woodpecker/*.yaml
+          ignore:
+            - images:
+                - ghcr.io/your-org/
+            - path: .woodpecker/release.yaml
+              images:
+                - "ghcr.io/revotale/ci/base:${CI_COMMIT_TAG}"
+                - "ghcr.io/revotale/ci/buildx:${CI_COMMIT_TAG}"
+                - "ghcr.io/revotale/ci/updatecli:${CI_COMMIT_TAG}"

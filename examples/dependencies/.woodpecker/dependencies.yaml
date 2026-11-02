@@ -7,7 +7,7 @@ when:
 
 steps:
   - name: update-dependencies
-    image: ghcr.io/revotale/ci/updatecli:v0.1.3
+    image: ghcr.io/revotale/ci/updatecli:v0.1.5@sha256:57fc5125600180579a54a7a2f0c98d510964059eb36d0910e43bb792bc7672fb
     environment:
       # Public repositories also need authentication to push branches and open PRs.
       UPDATECLI_GITHUB_TOKEN:

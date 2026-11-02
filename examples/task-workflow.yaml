@@ -20,31 +20,31 @@ when:
 
 steps:
   - name: lint
-    image: ghcr.io/revotale/ci/base:v0.1.3
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: []
     commands: [task lint]
 
   - name: unit
-    image: ghcr.io/revotale/ci/base:v0.1.3
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: []
     commands: [task test:unit]
 
   # Write artifacts into the shared workspace, for example dist/.
   - name: build
-    image: ghcr.io/revotale/ci/base:v0.1.3
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: [lint, unit]
     commands: [task build]
 
   # Check the built files without rebuilding them.
   - name: artifact
-    image: ghcr.io/revotale/ci/base:v0.1.3
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: [build]
     commands: [task test:artifact]
 
   # Upload the tested files; do not rebuild them.
   # Add destination-specific secrets here, available only to tag events.
   - name: publish
-    image: ghcr.io/revotale/ci/base:v0.1.3
+    image: ghcr.io/revotale/ci/base:v0.1.5@sha256:6e63627e23192f3e6258776bc9eeca0cc42829b1c447bc252ece997541e73f09
     depends_on: [artifact]
     when:
       - *release-tag

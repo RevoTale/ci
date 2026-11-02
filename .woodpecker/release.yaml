@@ -1,18 +1,107 @@
+variables:
+  - &release-settings
+    api_key:
+      from_secret: forge_token
+    target: ${CI_COMMIT_SHA}
+    title: "${CI_COMMIT_TAG}"
+    note: CHANGELOG.md
+
 when:
-  - event: push
-    branch: ${CI_REPO_DEFAULT_BRANCH}
+  - event: tag
+    ref: refs/tags/v*
 
 depends_on: [image]
 
 steps:
-  - name: release
-    image: woodpeckerci/plugin-ready-release-go:4.1.2
+  - name: registry-login
+    depends_on: []
+    image: docker:28.5.1-cli@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad
     environment:
-      PLUGIN_GIT_EMAIL: ${CI_COMMIT_AUTHOR_EMAIL}
-      PLUGIN_FORGE_TOKEN:
-        from_secret: forge_token
+      DOCKER_CONFIG: .registry-auth
+      REGISTRY_USERNAME:
+        from_secret: registry_username
+      REGISTRY_PASSWORD:
+        from_secret: registry_password
     commands:
-      # Upstream 4.1.2 copies x86 esbuild into ARM64 images. Repair its pinned
-      # dependency before starting the official plugin; remove when upstream fixes it.
-      - npm rebuild --prefix /app --foreground-scripts esbuild
-      - /app/node_modules/.bin/tsx /app/src/run.ts
+      # Login only writes credentials; no Docker daemon is needed.
+      - printf '%s' "$REGISTRY_PASSWORD" | docker login ghcr.io --username "$REGISTRY_USERNAME" --password-stdin
+
+  - name: publish-policy
+    depends_on: [registry-login]
+    image: ghcr.io/revotale/ci/updatecli:v0.1.5@sha256:57fc5125600180579a54a7a2f0c98d510964059eb36d0910e43bb792bc7672fb
+    environment:
+      DOCKER_CONFIG: .registry-auth
+    commands:
+      # Policy.yaml supplies the version. Existing versions are not overwritten.
+      - >-
+        updatecli --disable-version-check manifest push
+        --config policies/dependencies/updatecli.d
+        --values policies/dependencies/values.yaml
+        --policy policies/dependencies/Policy.yaml
+        --tag ghcr.io/revotale/ci/policies/dependencies
+        .
+
+  - name: registry-logout
+    depends_on: [publish-policy]
+    image: docker:28.5.1-cli@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad
+    environment:
+      DOCKER_CONFIG: .registry-auth
+    when:
+      - status: [success, failure]
+    commands:
+      - docker logout ghcr.io
+
+  # Exercise this release through the normal consumer plugin interface.
+  - name: build-consumer
+    image: "ghcr.io/revotale/ci/buildx:${CI_COMMIT_TAG}"
+    pull: true
+    depends_on: [registry-logout]
+    settings:
+      context: tests/consumer
+      dockerfile: tests/consumer/Dockerfile
+      repo: ci-smoke
+      title: CI smoke
+      description: Buildx smoke test, native platform
+      authors: Liakhovskyi Vladyslav
+      licenses: MIT
+      labels:
+        - com.revotale.smoke=preserved
+      dry_run: true
+      output: type=oci,tar=false,dest=.smoke-image
+
+  # Inspect exported metadata without loading an image or publishing a fixture.
+  - name: inspect-consumer
+    image: "ghcr.io/revotale/ci/base:${CI_COMMIT_TAG}"
+    pull: true
+    depends_on: [build-consumer]
+    commands:
+      - task test:integration
+
+  # Public consumers must resolve the policy without registry credentials.
+  - name: verify-public-policy
+    image: "ghcr.io/revotale/ci/updatecli:${CI_COMMIT_TAG}"
+    pull: true
+    depends_on: [registry-logout]
+    environment:
+      DOCKER_CONFIG: /tmp/anonymous-registry
+    commands:
+      - updatecli --disable-version-check compose show --file examples/dependencies/updatecli-compose.yaml
+
+  - name: publish-release
+    depends_on: [inspect-consumer, verify-public-policy]
+    image: woodpeckerci/plugin-release:0.3.2@sha256:a045e18674319a2e3e534b5b674c100a0f01a9fc718dd03ab6732155b228e61b
+    when:
+      - ref:
+          include: [refs/tags/v*]
+          exclude: [refs/tags/v*-*]
+    settings:
+      <<: *release-settings
+
+  - name: publish-prerelease
+    depends_on: [inspect-consumer, verify-public-policy]
+    image: woodpeckerci/plugin-release:0.3.2@sha256:a045e18674319a2e3e534b5b674c100a0f01a9fc718dd03ab6732155b228e61b
+    when:
+      - ref: refs/tags/v*-*
+    settings:
+      <<: *release-settings
+      prerelease: true

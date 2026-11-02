@@ -2,7 +2,11 @@
 
 Two files connect a GitHub repository to our shared Updatecli policy. It opens one dependency PR, without automerge.
 
-Policy `0.1.0` and runner `v0.1.3` are published. Both packages currently require registry authentication; make them public before using the example without pull credentials.
+The runner and policy must be downloadable without registry credentials.
+Release smoke verifies this before the forge release is announced.
+
+`forge_token` is still required to push dependency branches and open PRs.
+It is not a substitute for registry authentication.
 
 ## Connect a repository
 
@@ -19,7 +23,7 @@ The repository owner, name and default branch come from Woodpecker. No per-proje
 
 Dockerfile base images, Woodpecker step images, Go versions and modules, and policy references in Updatecli compose files. The runner includes Go so Updatecli can run `go mod tidy` where `go.sum` exists.
 
-This policy does not cover every dependency file: npm, Composer, Docker Compose and other ecosystems need an explicit extension. It uses GitHub SCM and PR actions; changing only the token does not switch it to GitLab or Forgejo.
+This policy does not update Dev Container JSON, feature versions or Markdown examples. Review those alongside dependency PRs. npm, Composer, Docker Compose and other ecosystems need an explicit extension. It uses GitHub SCM and PR actions; changing only the token does not switch it to GitLab or Forgejo.
 
 ## Project exceptions
 
@@ -27,7 +31,7 @@ Keep the shared policy reference. Override its native crawler settings instead o
 
 ```yaml
 policies:
-  - policy: ghcr.io/revotale/ci/policies/dependencies:0.1.0
+  - policy: ghcr.io/revotale/ci/policies/dependencies:0.2.0
     valuesinline:
       crawlers:
         golang:

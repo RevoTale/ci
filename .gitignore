@@ -1,0 +1,4 @@
+# Local and CI build outputs.
+/.build-cache/
+/.smoke-image/
+/.registry-auth/

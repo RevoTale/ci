@@ -1,5 +1,5 @@
 # Compile the module's tools natively for the target architecture without QEMU.
-FROM --platform=$BUILDPLATFORM golang:1.27.2-trixie AS build
+FROM --platform=$BUILDPLATFORM golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e AS build
 
 WORKDIR /opt/tools
 COPY go.mod go.sum ./
@@ -11,7 +11,7 @@ ENV CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH
 RUN ["go", "build", "-trimpath", "-o", "/out/", "tool"]
 
 # Go projects use this image to run Task commands without installing tools in CI.
-FROM golang:1.27.2-trixie AS runtime
+FROM golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e AS runtime
 
 COPY --from=build /out/ /usr/local/bin/
 WORKDIR /workspace

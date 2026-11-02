@@ -1,6 +1,6 @@
 {
   "name": "ci",
-  "image": "golang:trixie",
+  "image": "golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e",
   "features": {
     "ghcr.io/devcontainers-extra/features/go-task:1": {
       "version": "3.54.0"
