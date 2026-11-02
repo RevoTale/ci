@@ -21,4 +21,6 @@ policies:
                 - ghcr.io/your-org/
             - path: .woodpecker/release.yaml
               images:
-                - ghcr.io/revotale/ci/
+                - "ghcr.io/revotale/ci/base:${CI_COMMIT_TAG}"
+                - "ghcr.io/revotale/ci/buildx:${CI_COMMIT_TAG}"
+                - "ghcr.io/revotale/ci/updatecli:${CI_COMMIT_TAG}"
