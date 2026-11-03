@@ -22,9 +22,9 @@ Current agreed decisions. Implementation may still be pending.
 | Require `title`, `description`, `authors` and `licenses` in our Buildx wrapper. | Missing metadata fails early. Reuse plugin-provided labels instead of duplicating them. |
 | Declare the actual author in image metadata. Use `Liakhovskyi Vladyslav` for these images. | Authorship should be explicit, not inferred from the organization or CI actor. |
 | Use Go for necessary custom logic, with named functions, strict golangci-lint, gofmt and go fix checks. | Keep the small amount of custom code readable and checked. |
-| Validate PRs, default-branch pushes and manual runs. Publish releases from tags after checks pass. | Avoid duplicate push and PR checks on working branches while keeping default-branch validation and release preparation. |
+| Validate PRs, default-branch pushes and manual runs. Publish artifacts from tags after checks pass. | Avoid duplicate push and PR checks on working branches while keeping default-branch validation and release preparation. |
 | Use `v`-prefixed release tags by default. Let consumers change the tag filter. | Keep our convention without imposing it on every project. |
-| Use the official ready-release-go plugin for release preparation. | Reuse release PR and changelog automation. |
+| Merge release changes through PRs. Let ready-release-go create the tag and forge release. | Keep the official release flow without project-owned JS or TS. We accept that a concurrent merge can enter the tag after the changelog was approved. Revisit if the release must match the exact tested merge commit. |
 | Add daily Updatecli dependency PRs. | Keep updates visible and let CI check them before merging. |
 | Keep forge and registry credentials in Woodpecker secrets with access limited to the events that need them. | Keep credentials out of Git and untrusted PR checks; allow platforms to change. |
 | Require approval before running untrusted contributions. Keep privileged builders on a separate CI machine. | Approval controls execution; the separate machine limits exposure of the homelab. Infrastructure setup stays separate from this repo. |
@@ -34,8 +34,6 @@ Current agreed decisions. Implementation may still be pending.
 | Provide a minimal start, alternative check environments, and separate examples for Docker images and file artifacts. Add optional capabilities only when needed. | Keep consumer setup small without running duplicate workflows. |
 | Reuse repeated event filters and settings through YAML anchors within each file. Keep images explicit. | Keep local rules consistent while showing each step's image and version. |
 | Keep build, artifact testing and publication separate. Do not repeat completed checks through Task dependencies or rebuild file artifacts during publication. | Test the produced artifact and publish it without repeating work. |
-| Create release tags at the checked CI commit and never move them. | A newer branch tip must not replace the commit that passed CI. |
-| Announce releases after artifact publication and consumer smoke succeed. | Consumers must be able to download and use the published components. |
 | Pin consumed images by version and multi-platform digest. | Keep tested inputs stable while dependency changes remain visible in Git. |
 | Test newly published components using the current release tag. Keep ordinary consumer references explicit. | Release smoke must exercise the new output, not an older tool version. |
 | Use the local shared policy in this repository and the published policy in consumers. | Avoid a publication dependency when maintaining the policy itself. |
