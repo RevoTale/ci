@@ -1,27 +1,26 @@
 # RevoTale CI
 
-Shared tools and CI conventions for RevoTale projects.
-Workflows stay in each repository; images and dependency policies are reused.
+Run your project’s checks in Woodpecker and publish its artifacts when you tag a release. Choose a workflow below and keep its YAML in your repository.
 
-[Workflow example](examples/woodpecker.yaml) ·
+[Migrate a repository](docs/migrate.md) ·
 [Dependency updates](docs/integrate-dependency-updates.md) ·
 [Release flow](docs/release.md) ·
 [Releases](https://github.com/RevoTale/ci/releases)
 
-## What you can reuse
+## Choose a workflow
 
-| Component | Purpose |
+| Project output | Starting point |
 | --- | --- |
-| `ghcr.io/revotale/ci/base` | Go and Task on Debian Trixie. |
-| `ghcr.io/revotale/ci/buildx` | Official Buildx plugin with required image metadata. |
-| `ghcr.io/revotale/ci/updatecli` | Updatecli with Go and Git for dependency updates. |
-| `ghcr.io/revotale/ci/policies/dependencies:0.2.0` | Shared dependency discovery and GitHub PR configuration. |
+| Checks only | [Minimal start](#minimal-start) |
+| Docker images | [Docker workflow](examples/woodpecker.yaml) |
+| Binaries, archives or other files | [Task workflow](examples/task-workflow.yaml) |
 
-Images support ARM64 and AMD64. Policy versions are independent of image versions.
+Each starting point includes lint and unit tests. For both images and files,
+[share validation](docs/optional-steps.md#keep-checks-in-one-place).
 
 ## Minimal start
 
-Provide `task lint` and `task test:unit`, then create `.woodpecker.yaml`:
+Enable the repository in Woodpecker. From the repository root, run `task lint` and `task test:unit` to confirm both tasks exist and pass. If Go and Task provide all the tools they need, save this as `.woodpecker.yaml`:
 
 ```yaml
 when:
@@ -43,61 +42,10 @@ steps:
     commands: [task test:unit]
 ```
 
-Both checks run in parallel, once per pipeline.
+Open a pull request. In Woodpecker, look for two parallel steps, `lint` and `unit`. Open a failed step to see the output of its Task command.
 
-## Choose how checks run
-
-| Environment | Use when | Example |
-| --- | --- | --- |
-| Go and Task | The base image provides everything your tasks need. | Minimal start above |
-| Project toolchain and services | Checks need extra tools or PostgreSQL. | [Services](examples/checks-services.yaml) |
-| Dockerfile targets | Keep tool installation and checks in the repository without publishing a toolchain image. | [Dockerfile checks](examples/checks-dockerfile.yaml) |
-
-These are alternatives. Run each check once.
-
-The Taskfile contract is the same: `task lint`, `task test:unit`,
-and `task test:integration` when needed. Invoke tasks through workflow
-`commands` or Dockerfile `RUN`.
-
-See [check environments](docs/check-environments.md) before connecting
-these examples to build and publication.
-
-## Add builds when needed
-
-Replace the minimal workflow with one example:
-
-| What you produce | Example |
-| --- | --- |
-| Docker images | [Docker workflow](examples/woodpecker.yaml) |
-| Binaries, archives or other files | [Task workflow](examples/task-workflow.yaml) |
-
-Each example already includes lint and unit tests.
-Do not install it alongside the minimal workflow or the other example.
-
-Add [integration tests or release publication](docs/optional-steps.md)
-only when needed. For projects producing both images and files, share
-the checks as described in that guide.
-
-## Configure the selected workflow
-
-
-1. Choose the [Docker workflow](examples/woodpecker.yaml) or
-   [Task workflow](examples/task-workflow.yaml).
-2. Set explicit tool image versions and project-specific settings.
-3. Provide `task lint` and `task test:unit`.
-4. For Docker images, add `artifact-test` and `release` targets.
-   For Task commands, keep only the capabilities your project implements.
-5. Configure the agent and secrets below.
-
-The YAML belongs to your project. There is no remote workflow include,
-configuration extension or generator.
-
-Add `task test:integration`, `task build`, `task test:artifact`,
-`task publish` and `task release` only when the project needs them.
-Native plugins can handle image builds and publication.
-
-See [optional steps](docs/optional-steps.md) for dependencies,
-environment setup and examples of removing unused capabilities.
+If your tasks need extra tools or services, choose a [check environment](docs/check-environments.md).
+Add [optional steps](docs/optional-steps.md) for capabilities the project uses.
 
 ## How the Docker workflow runs
 
@@ -130,6 +78,17 @@ cross-project caching require separate configuration.
 [Why tests live in Dockerfile targets](ARTIFACT_TESTING.md) ·
 [Multiple images with a matrix](.woodpecker/image.yaml)
 
+## Shared components
+
+| Component | When to use it |
+| --- | --- |
+| `ghcr.io/revotale/ci/base` | Run Go and Task commands on Debian Trixie. |
+| `ghcr.io/revotale/ci/buildx` | Build a Docker image and publish it with the project’s name, purpose, authors and license. |
+| `ghcr.io/revotale/ci/updatecli` | Run Updatecli in a scheduled or manual Woodpecker step. |
+| `ghcr.io/revotale/ci/policies/dependencies:0.2.0` | Reference these rules in `updatecli-compose.yaml` to collect image, Go and policy updates in one GitHub PR. |
+
+The three images support ARM64 and AMD64. The policy has its own version.
+
 ## Agent and credentials
 
 Use a dedicated CI machine and require approval for untrusted PRs.
@@ -139,15 +98,15 @@ the same builder privileges as the official plugin.
 | Secret | Used for | Allowed events |
 | --- | --- | --- |
 | `registry_username`, `registry_password` | Publishing images and policies | `tag` |
-| `forge_token` | Release preparation and publication | Default-branch `push`, `tag` |
+| `forge_token` | Release PRs and forge releases | Default-branch `push` |
 | `forge_token` | Dependency PRs, when enabled | `cron`, `manual` |
 
 Registry credentials need push access. Forge credentials need repository
 contents and pull-request write access. Do not expose them to PR checks.
 
-Default-branch pushes prepare release PRs and tag the checked commit.
-The tag pipeline publishes artifacts, runs consumer smoke checks, then publishes
-the release. See [release flow](docs/release.md).
+In RevoTale/ci itself, merging a release PR triggers the tag and forge release after main checks pass.
+The tag pipeline publishes artifacts and verifies them for consumers.
+See [release flow](docs/release.md).
 
 ## Dependency updates
 
@@ -178,7 +137,7 @@ exactly which steps change.
 ## For contributors and AI agents
 
 Read [AGENTS.md](AGENTS.md) and [DECISIONS.md](DECISIONS.md) before proposing changes.
-For project integration, start with the linked examples and guides.
+For existing projects, follow the [migration guide](docs/migrate.md).
 
 Build shared functionality here. Propose extraction into
 [woodpecker-toolkit](https://github.com/RevoTale/woodpecker-toolkit)

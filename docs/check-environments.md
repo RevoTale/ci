@@ -11,7 +11,7 @@ repeating installation but needs its own build and update process.
 Use Woodpecker services for databases. Integration tasks must wait for
 readiness and use isolated test data.
 
-The services example uses PostgreSQL and DSN names from the fiscalization
+The [services example](../examples/checks-services.yaml) uses PostgreSQL and DSN names from the fiscalization
 service. Adapt these names to the consumer's Taskfile.
 
 ## Commands in Dockerfile targets
@@ -22,7 +22,7 @@ without publishing a separate toolchain image.
 Each target invokes a Task command. Independent targets must not inherit
 from one another, otherwise checks can run twice.
 
-The example covers lint and unit tests. It assumes the tasks need only Go
+The [workflow](../examples/checks-dockerfile.yaml) builds independent targets from the [example Dockerfile](../examples/Dockerfile.checks) for lint and unit tests. It assumes the tasks need only Go
 and Task; add the project's tools to the tools stage.
 
 A database inside a build needs explicit setup and cleanup. Do not assume

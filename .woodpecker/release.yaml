@@ -1,11 +1,3 @@
-variables:
-  - &release-settings
-    api_key:
-      from_secret: forge_token
-    target: ${CI_COMMIT_SHA}
-    title: "${CI_COMMIT_TAG}"
-    note: CHANGELOG.md
-
 when:
   - event: tag
     ref: refs/tags/v*
@@ -86,22 +78,3 @@ steps:
       DOCKER_CONFIG: /tmp/anonymous-registry
     commands:
       - updatecli --disable-version-check compose show --file examples/dependencies/updatecli-compose.yaml
-
-  - name: publish-release
-    depends_on: [inspect-consumer, verify-public-policy]
-    image: woodpeckerci/plugin-release:0.3.2@sha256:a045e18674319a2e3e534b5b674c100a0f01a9fc718dd03ab6732155b228e61b
-    when:
-      - ref:
-          include: [refs/tags/v*]
-          exclude: [refs/tags/v*-*]
-    settings:
-      <<: *release-settings
-
-  - name: publish-prerelease
-    depends_on: [inspect-consumer, verify-public-policy]
-    image: woodpeckerci/plugin-release:0.3.2@sha256:a045e18674319a2e3e534b5b674c100a0f01a9fc718dd03ab6732155b228e61b
-    when:
-      - ref: refs/tags/v*-*
-    settings:
-      <<: *release-settings
-      prerelease: true

@@ -146,6 +146,17 @@ their build targets; keep checks native unless the project opts in.
 
 ## Release preparation
 
-The tag-only `task release` example publishes release information.
-The official ready-release-go workflow prepares release PRs on
-default-branch pushes. Enable the operations your project needs.
+The examples run on an existing Git tag. They test and publish the commit
+that tag identifies. Using the shared images does not configure tagging.
+
+In a multi-workflow setup, replace `depends_on: [image]` in the release workflow
+with the names of the workflows that must pass on the default branch (for example,
+`depends_on: [validate]` if it runs all required checks).
+
+If your repository adopts [our ready-release-go workflow](../.woodpecker/release-pr.yaml),
+merging a release PR triggers tag and forge release creation after main checks.
+A concurrent merge can enter the tag after changelog approval. We accept this
+tradeoff. If your release must match the tested merge commit, create the tag
+at that commit's SHA instead.
+
+Use the tag-only `task release` step only for work the plugin does not already do.

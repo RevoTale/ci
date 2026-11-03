@@ -66,10 +66,3 @@ steps:
         updatecli --disable-version-check manifest validate --strict
         --config policies/dependencies/updatecli.d
         --values policies/dependencies/values.yaml
-
-  - name: test-release-tag
-    image: woodpeckerci/plugin-ready-release-go:4.1.2@sha256:42239ea8a6dd4981b1bcee93431050d4524e942d26ba2b14ec5112a708306143
-    depends_on: []
-    commands:
-      - npm rebuild --prefix /app --foreground-scripts esbuild
-      - /app/node_modules/.bin/tsx --test release-config.test.ts
