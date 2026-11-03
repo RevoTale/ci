@@ -3,7 +3,7 @@
 Two files connect a GitHub repository to our shared Updatecli policy. It opens one dependency PR, without automerge.
 
 The runner and policy must be downloadable without registry credentials.
-Release smoke verifies this before the forge release is announced.
+The tag pipeline verifies anonymous access after policy publication.
 
 `forge_token` is still required to push dependency branches and open PRs.
 It is not a substitute for registry authentication.

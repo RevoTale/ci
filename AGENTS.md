@@ -1,5 +1,7 @@
 # Working agreement
 
+- To migrate a consumer repository, start with its URL and [the migration guide](docs/migrate.md).
+
 - Before creating, editing or deleting files, show the proposed diff and wait for explicit approval.
 - Apply only the approved changes. Agreement with an approach does not approve unseen code.
 - If additional changes are needed, propose them separately before editing.

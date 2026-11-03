@@ -14,6 +14,7 @@ import (
 
 type metadataField struct {
 	name  string
+	help  string
 	value string
 }
 
@@ -35,10 +36,10 @@ func Run() {
 func newWrapper() *wrapper {
 	return &wrapper{
 		metadata: []metadataField{
-			{name: "title"},
-			{name: "description"},
-			{name: "authors"},
-			{name: "licenses"},
+			{name: "title", help: "Name of the image"},
+			{name: "description", help: "What the image runs or provides"},
+			{name: "authors", help: "Author names for this image"},
+			{name: "licenses", help: "License for this image, for example MIT"},
 		},
 	}
 }
@@ -51,7 +52,7 @@ func (p *wrapper) metadataFlags() []cli.Flag {
 
 		flags = append(flags, &cli.StringFlag{
 			Name:        field.name,
-			Usage:       "OCI image " + field.name,
+			Usage:       field.help + " (Woodpecker: settings." + field.name + ")",
 			Required:    true,
 			Sources:     cli.EnvVars("PLUGIN_" + strings.ToUpper(field.name)),
 			Destination: &field.value,
