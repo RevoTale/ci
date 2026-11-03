@@ -1,20 +1,14 @@
 # Changelog
 
-## [0.1.6](https://github.com/RevoTale/ci/releases/tag/v0.1.6) - 2026-11-02
+## [0.1.6](https://github.com/RevoTale/ci/releases/tag/v0.1.6) - 2026-11-03
 
 ### ❤️ Thanks to all contributors! ❤️
 
-@Liakhovskyi Vladyslav
+@l-you
 
 ### Misc
 
-- fix(deps): ignore only dynamic release image references ([2f1b2d9](https://github.com/RevoTale/ci/commit/2f1b2d98b6b1810ff7c7fd07b15fe83b803e8f80))
-- perf(buildx): download only runtime module dependencies ([8764459](https://github.com/RevoTale/ci/commit/87644592cc0930948c950b612e10ec28e9318f5a))
-- perf(ci): reuse released Task tooling for validation ([9023bc0](https://github.com/RevoTale/ci/commit/9023bc03102a90274a113b1167f08e20ac920e7b))
-- fix(ci): quote tag values before workflow filtering ([ed0ce93](https://github.com/RevoTale/ci/commit/ed0ce93b5c59064b2ccda00ee09e79947442a959))
-- ci: simplify release gates and verify reusable components ([9bbde2f](https://github.com/RevoTale/ci/commit/9bbde2fe874812ee365217e206a140a833b30781))
-- docs(ci): add Task check environment examples ([53051d9](https://github.com/RevoTale/ci/commit/53051d920d2745791770893687d259a0e99b2ca4))
-- ci: simplify consumer workflows and reuse event filters ([e402f15](https://github.com/RevoTale/ci/commit/e402f1577ae41f9f50293f92bf4d78071754f5db))
+- Simplify releases and document CI migration [[#9](https://github.com/RevoTale/ci/pull/9)]
 
 ## [0.1.5](https://github.com/RevoTale/ci/releases/tag/v0.1.5) - 2026-11-01
 
