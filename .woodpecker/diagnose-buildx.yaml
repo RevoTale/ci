@@ -1,0 +1,19 @@
+when:
+  - event: push
+    branch: codex/diagnose-buildx-v016
+
+steps:
+  - name: diagnose-buildx
+    image: ghcr.io/revotale/ci/buildx:v0.1.6
+    pull: true
+    settings:
+      debug: true
+      context: tests/consumer
+      dockerfile: tests/consumer/Dockerfile
+      repo: ci-smoke
+      title: CI smoke
+      description: Diagnose the published Buildx plugin
+      authors: Liakhovskyi Vladyslav
+      licenses: MIT
+      dry_run: true
+      output: type=oci,tar=false,dest=.smoke-image
