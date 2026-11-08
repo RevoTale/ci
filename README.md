@@ -84,10 +84,8 @@ cross-project caching require separate configuration.
 | --- | --- |
 | `ghcr.io/revotale/ci/base` | Run Go and Task commands on Debian Trixie. |
 | `ghcr.io/revotale/ci/buildx` | Build a Docker image and publish it with the project’s name, purpose, authors and license. |
-| `ghcr.io/revotale/ci/updatecli` | Run Updatecli in a scheduled or manual Woodpecker step. |
-| `ghcr.io/revotale/ci/policies/dependencies:0.2.0` | Reference these rules in `updatecli-compose.yaml` to collect image, Go and policy updates in one GitHub PR. |
 
-The three images support ARM64 and AMD64. The policy has its own version.
+Both images support ARM64 and AMD64.
 
 ## Agent and credentials
 
@@ -97,9 +95,8 @@ the same builder privileges as the official plugin.
 
 | Secret | Used for | Allowed events |
 | --- | --- | --- |
-| `registry_username`, `registry_password` | Publishing images and policies | `tag` |
+| `registry_username`, `registry_password` | Publishing images | `tag` |
 | `forge_token` | Release PRs and forge releases | Default-branch `push` |
-| `forge_token` | Dependency PRs, when enabled | `cron`, `manual` |
 
 Registry credentials need push access. Forge credentials need repository
 contents and pull-request write access. Do not expose them to PR checks.
@@ -110,20 +107,11 @@ See [release flow](docs/release.md).
 
 ## Dependency updates
 
-```mermaid
-flowchart LR
-    A["Daily cron / manual"] --> B["Updatecli runner + shared policy"]
-    B --> C["Dependency PR"]
-    C --> D["Project CI + review"]
-```
+Updatecli is a companion tool. Use only official Updatecli releases, plugins
+and configuration. This repository does not maintain an Updatecli image,
+shared policy, custom updater or scheduled dependency workflow.
 
-Connect with two files: an Updatecli compose file and a Woodpecker workflow.
-There is no automerge.
-
-Follow the [integration guide](docs/integrate-dependency-updates.md)
-for files, registry access, secrets and cron setup.
-The current policy uses GitHub; do not assign the same dependencies
-to both Updatecli and another updater.
+See [Vladyslav's decision and the official integration references](docs/integrate-dependency-updates.md).
 
 ## What is enforced
 
