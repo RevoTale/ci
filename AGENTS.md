@@ -7,6 +7,8 @@
 - If additional changes are needed, propose them separately before editing.
 - Commit, push and change infrastructure only when explicitly requested.
 - Prefer native Woodpecker plugins and configuration over custom scripts.
+- Keep Updatecli as a companion tool. Use only official Updatecli releases,
+  plugins and configuration; do not maintain a custom runner or update logic.
 - Keep proposals, comments and documentation short: what, why, how to verify.
 - Distinguish proposed, implemented and tested behavior.
 - Implement CI functionality in RevoTale/ci.

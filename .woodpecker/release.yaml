@@ -5,49 +5,11 @@ when:
 depends_on: [image]
 
 steps:
-  - name: registry-login
-    depends_on: []
-    image: docker:28.5.1-cli@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad
-    environment:
-      DOCKER_CONFIG: .registry-auth
-      REGISTRY_USERNAME:
-        from_secret: registry_username
-      REGISTRY_PASSWORD:
-        from_secret: registry_password
-    commands:
-      # Login only writes credentials; no Docker daemon is needed.
-      - printf '%s' "$REGISTRY_PASSWORD" | docker login ghcr.io --username "$REGISTRY_USERNAME" --password-stdin
-
-  - name: publish-policy
-    depends_on: [registry-login]
-    image: ghcr.io/revotale/ci/updatecli:v0.1.5@sha256:57fc5125600180579a54a7a2f0c98d510964059eb36d0910e43bb792bc7672fb
-    environment:
-      DOCKER_CONFIG: .registry-auth
-    commands:
-      # Policy.yaml supplies the version. Existing versions are not overwritten.
-      - >-
-        updatecli --disable-version-check manifest push
-        --config policies/dependencies/updatecli.d
-        --values policies/dependencies/values.yaml
-        --policy policies/dependencies/Policy.yaml
-        --tag ghcr.io/revotale/ci/policies/dependencies
-        .
-
-  - name: registry-logout
-    depends_on: [publish-policy]
-    image: docker:28.5.1-cli@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad
-    environment:
-      DOCKER_CONFIG: .registry-auth
-    when:
-      - status: [success, failure]
-    commands:
-      - docker logout ghcr.io
-
   # Exercise this release through the normal consumer plugin interface.
   - name: build-consumer
     image: "ghcr.io/revotale/ci/buildx:${CI_COMMIT_TAG}"
     pull: true
-    depends_on: [registry-logout]
+    depends_on: []
     settings:
       context: tests/consumer
       dockerfile: tests/consumer/Dockerfile
@@ -68,13 +30,3 @@ steps:
     depends_on: [build-consumer]
     commands:
       - task test:integration
-
-  # Public consumers must resolve the policy without registry credentials.
-  - name: verify-public-policy
-    image: "ghcr.io/revotale/ci/updatecli:${CI_COMMIT_TAG}"
-    pull: true
-    depends_on: [registry-logout]
-    environment:
-      DOCKER_CONFIG: /tmp/anonymous-registry
-    commands:
-      - updatecli --disable-version-check compose show --file examples/dependencies/updatecli-compose.yaml
