@@ -1,54 +1,38 @@
-# Integrate dependency updates
+# Updatecli as a companion tool
 
-Two files connect a GitHub repository to our shared Updatecli policy. It opens one dependency PR, without automerge.
+We use only official Updatecli releases, plugins and configuration. RevoTale/ci
+does not build an Updatecli runner, publish a shared Updatecli policy or maintain
+custom update logic. The previous dependency workflow and integration examples
+have been removed.
 
-The runner and policy must be downloadable without registry credentials.
-The tag pipeline verifies anonymous access after policy publication.
+## Why I am making this change
 
-`forge_token` is still required to push dependency branches and open PRs.
-It is not a substitute for registry authentication.
+This decision and the reasoning below come directly from Vladyslav.
 
-## Connect a repository
+> I am removing our custom Updatecli setup because I want to move RevoTale
+> entirely to a Go-only stack. For private projects, we use only Go. For public
+> projects, pnpm is only there to build static files. PHP-related work is just a
+> side activity of my job, so it is not a reason to build our dependency tooling
+> around it.
+>
+> For the stack we actually use for the public internet, official Updatecli is
+> enough, including getting timely security fixes. That is why I am removing
+> everything we built for our custom Updatecli setup and keeping Updatecli as a
+> companion tool, using only its official plugins and configuration.
 
-1. Check existing Renovate, Dependabot or Updatecli configuration. Do not assign the same dependencies to two updaters.
-2. Copy [updatecli-compose.yaml](../examples/dependencies/updatecli-compose.yaml) to the repository root.
-3. Copy [dependencies.yaml](../examples/dependencies/.woodpecker/dependencies.yaml) to `.woodpecker/dependencies.yaml`. If the repo uses a single `.woodpecker.yaml`, first consolidate its workflows into `.woodpecker/`; do not leave competing config paths.
-4. Provide the Woodpecker secret `forge_token` for **cron and manual events**, with repository contents and pull-request write permissions. A public repository still needs authentication to push branches and create PRs.
-5. Create the Woodpecker cron `dependencies`, schedule `@daily`, on the default branch. YAML filters the event; it does not create the cron.
-6. Run manually on the default branch. Verify the resulting PR and its normal CI before merging.
+## Official integration
 
-The repository owner, name and default branch come from Woodpecker. No per-project substitutions are needed. Manual runs on the default branch also run this updater; do not enable its write credentials for PR events.
+Configure Updatecli directly in the repository that needs dependency updates.
+Use its built-in plugins and documented configuration. Do not restore our
+custom runner, shell targets, policy distribution or ecosystem-specific helpers.
 
-## What gets updated
+Start with the official [installation instructions](https://www.updatecli.io/docs/prologue/installation/),
+[configuration reference](https://www.updatecli.io/docs/core/configuration/) and
+[autodiscovery reference](https://www.updatecli.io/docs/core/autodiscovery/).
+For Go projects, see the official [Go crawler](https://www.updatecli.io/docs/plugins/autodiscovery/golang/).
+Use the documented runtime requirements of the selected plugins.
 
-Dockerfile base images, Woodpecker step images, Go versions and modules, and policy references in Updatecli compose files. The runner includes Go so Updatecli can run `go mod tidy` where `go.sum` exists.
-
-This policy does not update Dev Container JSON, feature versions or Markdown examples. Review those alongside dependency PRs. npm, Composer, Docker Compose and other ecosystems need an explicit extension. It uses GitHub SCM and PR actions; changing only the token does not switch it to GitLab or Forgejo.
-
-## Project exceptions
-
-Keep the shared policy reference. Override its native crawler settings instead of copying its implementation:
-
-```yaml
-policies:
-  - policy: ghcr.io/revotale/ci/policies/dependencies:0.2.0
-    valuesinline:
-      crawlers:
-        golang:
-          ignore:
-            - modules:
-                example.com/legacy: ""
-```
-
-Keep image and policy versions explicit. Policy updates arrive through the `updatecli` crawler; runner updates through the `woodpecker` crawler.
-
-## For AI agents
-
-- Read this guide, the two examples and the target repo's instructions before editing.
-- Verify published versions; do not treat example versions as proof of publication.
-- Preserve existing workflows and project exceptions. Show the proposed diff for approval.
-- Use the shared policy. Do not add helper scripts, a custom plugin or a second updater.
-- Keep `forge_token` required for PR creation. Do not add a preview mode or automerge.
-- Validate the workflow, then report files, secrets, cron, publication and runtime verification separately. Writing YAML does not complete server setup.
-
-[Updatecli policies](https://www.updatecli.io/docs/core/shareandreuse/) · [Compose overrides](https://www.updatecli.io/docs/core/compose/) · [Woodpecker cron](https://woodpecker-ci.org/docs/usage/cron)
+Existing consumers must replace references to `ghcr.io/revotale/ci/updatecli`
+and `ghcr.io/revotale/ci/policies/dependencies` before relying on this change.
+Removing this integration does not migrate other repositories, delete published
+artifacts or configure a replacement scheduled job.

@@ -23,9 +23,6 @@ steps:
         examples/woodpecker.yaml
       - >-
         woodpecker-cli --disable-update-check lint --strict
-        examples/dependencies/.woodpecker/dependencies.yaml
-      - >-
-        woodpecker-cli --disable-update-check lint --strict
         examples/task-workflow.yaml
       - >-
         woodpecker-cli --disable-update-check lint --strict
@@ -56,13 +53,3 @@ steps:
     depends_on: [check-format-and-fixes]
     commands:
       - task test:unit
-
-  - name: validate-dependency-policy
-    image: ghcr.io/updatecli/updatecli:v0.123.0@sha256:5596883b1d8d8e174189a89467c9536b01f80ac26d260dc98eb2d19621caab31
-    depends_on: []
-    commands:
-      # Parse the shared policy without pushing branches or creating PRs.
-      - >-
-        updatecli --disable-version-check manifest validate --strict
-        --config policies/dependencies/updatecli.d
-        --values policies/dependencies/values.yaml
