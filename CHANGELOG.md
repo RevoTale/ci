@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.7](https://github.com/RevoTale/ci/releases/tag/v0.1.7) - 2026-11-08
+
+### ❤️ Thanks to all contributors! ❤️
+
+@l-you
+
+### Misc
+
+- refactor(ci): retire custom Updatecli integration and refresh toolchains [[#10](https://github.com/RevoTale/ci/pull/10)]
+
 ## [0.1.6](https://github.com/RevoTale/ci/releases/tag/v0.1.6) - 2026-11-03
 
 ### ❤️ Thanks to all contributors! ❤️
