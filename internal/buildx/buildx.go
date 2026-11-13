@@ -1,16 +1,21 @@
-// Package buildx adds OCI metadata settings to the official Woodpecker Buildx plugin.
+// Package buildx adds required OCI metadata to the official Woodpecker Buildx plugin.
 package buildx
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
 	"os"
 	"strings"
-	"syscall"
 
-	plugin "codeberg.org/woodpecker-plugins/go-plugin"
+	upstream "codeberg.org/woodpecker-plugins/plugin-docker-buildx/plugin"
+	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v3"
 )
+
+var errEmptyMetadata = errors.New("metadata must not be empty")
+var errEnvironment = errors.New("cannot load plugin environment file")
 
 type metadataField struct {
 	name  string
@@ -19,37 +24,37 @@ type metadataField struct {
 }
 
 type wrapper struct {
+	upstream *upstream.Plugin
 	metadata []metadataField
 }
 
-// Run adds required OCI metadata settings to the official Buildx plugin.
+// Run validates OCI metadata and runs the official Buildx implementation.
 func Run() {
-	p := newWrapper()
+	if err := loadPluginEnvironment(); err != nil {
+		log.Fatal(err)
+	}
 
-	plugin.New(plugin.Options{
-		Name:    "docker-buildx",
-		Flags:   p.metadataFlags(),
-		Execute: p.runBuildx,
-	}).Run()
+	newWrapper().upstream.Run()
 }
 
 func newWrapper() *wrapper {
-	return &wrapper{
-		metadata: []metadataField{
-			{name: "title", help: "Name of the image"},
-			{name: "description", help: "What the image runs or provides"},
-			{name: "authors", help: "Author names for this image"},
-			{name: "licenses", help: "License for this image, for example MIT"},
-		},
-	}
+	adapter := &wrapper{metadata: []metadataField{
+		{name: "title", help: "Name of the image"},
+		{name: "description", help: "What the image runs or provides"},
+		{name: "authors", help: "Author names for this image"},
+		{name: "licenses", help: "License for this image, for example MIT"},
+	}}
+	adapter.upstream = upstream.New(nil, "6.1.2")
+	adapter.upstream.App.Flags = append(adapter.upstream.App.Flags, adapter.metadataFlags()...)
+	adapter.upstream.App.Before = adapter.applyMetadata
+
+	return adapter
 }
 
-func (p *wrapper) metadataFlags() []cli.Flag {
-	flags := make([]cli.Flag, 0, len(p.metadata))
-
-	for i := range p.metadata {
-		field := &p.metadata[i]
-
+func (adapter *wrapper) metadataFlags() []cli.Flag {
+	flags := make([]cli.Flag, 0, len(adapter.metadata))
+	for i := range adapter.metadata {
+		field := &adapter.metadata[i]
 		flags = append(flags, &cli.StringFlag{
 			Name:        field.name,
 			Usage:       field.help + " (Woodpecker: settings." + field.name + ")",
@@ -62,47 +67,34 @@ func (p *wrapper) metadataFlags() []cli.Flag {
 	return flags
 }
 
-func (p *wrapper) runBuildx(_ context.Context) error {
-	labels := imageLabels(p.metadata, os.Getenv("PLUGIN_LABELS"))
-
-	if err := os.Setenv("PLUGIN_LABELS", labels); err != nil {
-		return fmt.Errorf("set image labels: %w", err)
-	}
-
-	return startOfficialBuildx()
-}
-
-func imageLabels(fields []metadataField, existing string) string {
-	labels := existing
-
-	for _, field := range fields {
-		if field.value == "" {
-			continue
+func (adapter *wrapper) applyMetadata(ctx context.Context, _ *cli.Command) (context.Context, error) {
+	for _, field := range adapter.metadata {
+		if strings.TrimSpace(field.value) == "" {
+			return ctx, fmt.Errorf("%w: %s", errEmptyMetadata, field.name)
 		}
 
-		if labels != "" {
-			labels += ","
-		}
-
-		// Buildx separates labels with commas; escape commas inside values.
-		value := strings.ReplaceAll(field.value, ",", `\,`)
-		labels += "org.opencontainers.image." + field.name + "=" + value
+		adapter.upstream.Settings.Build.Labels = append(adapter.upstream.Settings.Build.Labels,
+			"org.opencontainers.image."+field.name+"="+field.value)
 	}
 
-	return labels
+	return ctx, nil
 }
 
-func startOfficialBuildx() error {
-	// Preserve the official plugin's Docker daemon startup.
-	const entrypoint = "/usr/local/bin/dockerd-entrypoint.sh"
+// Preserve the official command's environment-file support before parsing flags.
+func loadPluginEnvironment() error {
+	files := []string{}
+	if _, err := os.Stat("/run/drone/env"); err == nil {
+		files = append(files, "/run/drone/env")
+	}
 
-	// #nosec G204 -- Executable and argv are fixed; inherited environment carries plugin settings.
-	if err := syscall.Exec(
-		entrypoint,
-		[]string{entrypoint, "plugin-docker-buildx"},
-		os.Environ(),
-	); err != nil {
-		return fmt.Errorf("start official Buildx plugin: %w", err)
+	if file := os.Getenv("PLUGIN_ENV_FILE"); file != "" {
+		files = append(files, file)
+	}
+
+	for _, file := range files {
+		if err := godotenv.Overload(file); err != nil {
+			return fmt.Errorf("%w: %s", errEnvironment, file)
+		}
 	}
 
 	return nil

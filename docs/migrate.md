@@ -12,3 +12,13 @@ Start with the target repository URL. Prepare a migration PR in that repository.
 | Unit tests on PRs | `unit` runs `task test:unit` on PRs | Link both runs for the same commit |
 
 **Before switching**, list settings outside Git that still need action: Woodpecker activation, required status checks, untrusted PR approval, scheduled jobs and secret names with allowed events. Keep publish credentials out of PR checks. Switch required checks after the replacement passes. Hand each artifact or deployment to one publisher before retiring its old workflow.
+
+For Buildx, add the exact image reference used by the workflow, including its
+version and digest, to the server's privileged-plugin allowlist. A bare tag entry
+does not authorize a different digest-pinned reference. Keep repository-wide
+privileged-step and host-volume permissions disabled.
+
+Use a release whose published consumer smoke passed. A GitHub release or an
+existing registry tag alone does not establish this. Local verification can
+prepare the migration while the server is unavailable; it does not verify the
+server allowlist, secrets or publication.
