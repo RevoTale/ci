@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -30,5 +31,28 @@ func TestMissingPluginEnvironmentFileRejected(t *testing.T) {
 
 	if err := loadPluginEnvironment(); !errors.Is(err, errEnvironment) {
 		t.Fatalf("error = %v, want environment-file error", err)
+	}
+}
+
+func TestInvalidPluginEnvironmentFileRejected(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "plugin.env")
+	t.Setenv("PLUGIN_ENV_FILE", file)
+	t.Setenv("CI_METADATA_TEST_VALUE", "unchanged")
+
+	if err := os.WriteFile(file, []byte("CI_METADATA_TEST_VALUE='unterminated"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	err := loadPluginEnvironment()
+	if !errors.Is(err, errEnvironment) {
+		t.Fatalf("error = %v, want environment-file error", err)
+	}
+
+	if strings.Contains(err.Error(), "unterminated") {
+		t.Fatal("environment-file error exposes its contents")
+	}
+
+	if os.Getenv("CI_METADATA_TEST_VALUE") != "unchanged" {
+		t.Fatal("invalid environment file changed the environment")
 	}
 }
