@@ -10,6 +10,7 @@ Current agreed decisions. Implementation may still be pending.
 | Build shared functionality in `RevoTale/ci`. Extract to `woodpecker-toolkit` only when it helps other people too. | Sharing code between our own repos alone does not justify another dependency. |
 | Write the full image and version in each step, without image anchors. | See what each step uses, change versions independently when bugs occur, and see exactly which steps a dependency bump affects in the Git diff. |
 | Use Taskfile for project commands. Require `task lint` and `task test:unit`. Invoke tasks explicitly through workflow `commands` or Dockerfile `RUN`. | Local development and CI use the same commands. |
+| Use official `woodpecker-cli exec` with the Docker backend for local workflow verification. | Vladyslav requested local execution because cloud CI is currently unavailable. |
 | Add optional Task commands when the project implements that capability. Invoke each check once through workflow steps or Dockerfile targets. Use native plugins for image builds and publication. | Keep a consistent contract without empty tasks or extra custom code. |
 | Prefer Debian Trixie for our toolchain. Allow Alpine where appropriate and scratch or distroless for suitable runtime images. | Keep environments consistent without forcing a full distribution into every image. |
 | Manage Task through Go module tools and install its binary into the toolchain image. | Keep the tool version in the module and make `task` directly available. |

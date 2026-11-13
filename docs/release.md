@@ -3,6 +3,8 @@
 These workflows maintain this repository. Consumers start from `examples/`;
 do not copy our whole `.woodpecker/` directory.
 
+For checks without a working CI server, see [local Woodpecker execution](local-verification.md).
+
 - `validate.yaml`: shared code and configuration checks.
 - `image.yaml`: build the base and Buildx images through a matrix.
 - `release-pr.yaml`: prepare release PRs and create forge releases on main pushes.
@@ -52,6 +54,8 @@ whitespace-only values fail before building.
 - The ARM64 `artifact-test` and `release` images built locally. The release image ran the official daemon startup, built the consumer fixture and exported its OCI layout. `task test:integration` passed against that output.
 - The AMD64 `artifact-test` image also built and ran its packaged help check through local emulation. The full consumer smoke ran on ARM64.
 - The packaged executable rejected a whitespace-only description before building.
+- Woodpecker CLI 3.19.0 executed the consumer smoke through the Docker backend with local Buildx and base images. Both the build and the subsequent OCI integration test passed. Only registry pulling and the dependency on the separately tested image workflow were removed from the temporary smoke configuration.
+- The same CLI executed `.woodpecker` locally for a PR event at commit `64c9767`: both image matrix entries passed `artifact-test` and dry-run release builds, followed by workflow lint, formatting/fix checks, lint and unit tests. The command exited with status 0; no publication or release-PR step ran.
 
 These are local checks. The next published release still needs a successful tag
 pipeline before consumer examples can pin its digests.

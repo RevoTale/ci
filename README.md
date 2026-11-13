@@ -137,6 +137,7 @@ exactly which steps change.
 
 Read [AGENTS.md](AGENTS.md) and [DECISIONS.md](DECISIONS.md) before proposing changes.
 For existing projects, follow the [migration guide](docs/migrate.md).
+To verify workflow changes without the server, use [local Woodpecker execution](docs/local-verification.md).
 
 Build shared functionality here. Propose extraction into
 [woodpecker-toolkit](https://github.com/RevoTale/woodpecker-toolkit)
