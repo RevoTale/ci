@@ -19,7 +19,7 @@ Current agreed decisions. Implementation may still be pending.
 | Build and publish ARM64 and AMD64 images only on release tags by default. Cross-compile Go where possible. | Consumers pull the matching platform without requiring emulation for compilation. |
 | Use explicit Buildx cache export and import between steps. | Reuse layers within the workflow. Persistent or cross-project cache remains an operator choice. |
 | Declare each image's context, Dockerfile and full registry path. | Support multiple images without requiring an `IMAGE_PREFIX` convention. |
-| Require `title`, `description`, `authors` and `licenses` in our Buildx wrapper. | Missing metadata fails early. Reuse plugin-provided labels instead of duplicating them. |
+| Require non-empty `title`, `description`, `authors` and `licenses` in our Buildx wrapper. Pass their values directly to the official Buildx Go implementation. | Vladyslav requires enforced image metadata. The plugin's comma-separated labels cannot preserve these values. We accept its Go dependencies to retain enforcement without maintaining build or push logic. |
 | Declare the actual author in image metadata. Use `Liakhovskyi Vladyslav` for these images. | Authorship should be explicit, not inferred from the organization or CI actor. |
 | Use Go for necessary custom logic, with named functions, strict golangci-lint, gofmt and go fix checks. | Keep the small amount of custom code readable and checked. |
 | Validate PRs, default-branch pushes and manual runs. Publish artifacts from tags after checks pass. | Avoid duplicate push and PR checks on working branches while keeping default-branch validation and release preparation. |

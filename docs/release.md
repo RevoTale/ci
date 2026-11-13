@@ -41,6 +41,21 @@ Consumer workflows keep explicit versions and digests.
 
 Full AMD64 Docker image builds and the release consumer integration test were not verified in that pass.
 
+## Metadata fix verification, 2026-11-13
+
+The wrapper passes required OCI metadata directly to the official Buildx Go
+implementation instead of encoding it into `PLUGIN_LABELS`. Missing, empty and
+whitespace-only values fail before building.
+
+- Lint, unit tests, module verification, formatting and Go fix checks passed in the Dev Container.
+- Regression tests cover commas, quotes, backslashes, newlines, Unicode, existing labels and all four required fields. Restoring the old comma-splitting behavior makes them fail.
+- The ARM64 `artifact-test` and `release` images built locally. The release image ran the official daemon startup, built the consumer fixture and exported its OCI layout. `task test:integration` passed against that output.
+- The AMD64 `artifact-test` image also built and ran its packaged help check through local emulation. The full consumer smoke ran on ARM64.
+- The packaged executable rejected a whitespace-only description before building.
+
+These are local checks. The next published release still needs a successful tag
+pipeline before consumer examples can pin its digests.
+
 ## Custom Updatecli removal, 2026-11-09
 
 Removed the custom runner, policy publication, dependency workflow and their
