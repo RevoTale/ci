@@ -22,7 +22,7 @@ and [metadata loader](https://github.com/woodpecker-ci/woodpecker/blob/v3.19.0/c
 
 ```sh
 woodpecker-cli --disable-update-check exec \
-  --local --backend-engine docker --timeout 20m \
+  --local --repo-path "$PWD" --backend-engine docker --timeout 20m \
   --repo RevoTale/ci --repo-default-branch main \
   --env CI_REPO=RevoTale/ci --env CI_REPO_NAME=ci --env CI_REPO_OWNER=RevoTale \
   --pipeline-event pull_request \
@@ -56,7 +56,7 @@ sed '/^depends_on: \[image\]$/d; s/pull: true/pull: false/' \
   .woodpecker/release.yaml > /tmp/ci-local-consumer-smoke.yaml
 
 woodpecker-cli --disable-update-check exec \
-  --local --backend-engine docker --timeout 10m \
+  --local --repo-path "$PWD" --backend-engine docker --timeout 10m \
   --repo RevoTale/ci --pipeline-event tag \
   --env CI_REPO=RevoTale/ci --env CI_REPO_NAME=ci --env CI_REPO_OWNER=RevoTale \
   --commit-ref refs/tags/v0.0.0-local \
