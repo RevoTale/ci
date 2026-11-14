@@ -21,14 +21,14 @@ when:
 
 steps:
   - name: lint
-    image: ghcr.io/revotale/ci/buildx:v0.1.5@sha256:2138543fab327ee4c3250f3f7cc66d1b6185c5180f1059719506e1f4fd9932a4
+    image: ghcr.io/revotale/ci/buildx:v0.1.8@sha256:bbd7e0a849e2e87c6e1bbecc6f8caf7fae0849b84b7e6abab34af07f9b1657b9
     depends_on: []
     settings:
       <<: *check-settings
       target: lint
 
   - name: unit
-    image: ghcr.io/revotale/ci/buildx:v0.1.5@sha256:2138543fab327ee4c3250f3f7cc66d1b6185c5180f1059719506e1f4fd9932a4
+    image: ghcr.io/revotale/ci/buildx:v0.1.8@sha256:bbd7e0a849e2e87c6e1bbecc6f8caf7fae0849b84b7e6abab34af07f9b1657b9
     depends_on: []
     settings:
       <<: *check-settings
