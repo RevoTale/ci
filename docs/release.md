@@ -59,3 +59,23 @@ They do not establish registry publication or server-side permissions.
 
 Keep existing release tags unchanged. Do not substitute local-only image tags
 or unverified digests in consumer examples.
+
+## Published verification, 2026-11-14
+
+Release [v0.1.8](https://github.com/RevoTale/ci/releases/tag/v0.1.8)
+published both images for `linux/arm64` and `linux/amd64`:
+
+- Base: `sha256:c59b01e74acd309c9c775f594917df6d9f8cad93fdfa7f40408aebeb5140f414`
+- Buildx: `sha256:bbd7e0a849e2e87c6e1bbecc6f8caf7fae0849b84b7e6abab34af07f9b1657b9`
+
+The published images passed the consumer smoke locally through Woodpecker CLI,
+pulled by these index digests. Required labels, the comma-containing description
+and provenance checks passed.
+
+[Tag pipeline #79](https://ci.revotale.com/repos/4/pipeline/79) published both
+images successfully, but its consumer step could not connect to the nested
+Docker daemon. Server-side execution remains unverified until the privileged
+allowlist is confirmed in the running server and the smoke passes there.
+Changing Compose environment requires container recreation; restarting an
+existing container does not apply the new environment. Preserve both the bare
+tag and exact digest-pinned Buildx reference in the allowlist.
