@@ -1,13 +1,16 @@
 when:
-  - event: tag
-    ref: refs/tags/v*
+  - event: pull_request
 
-depends_on: [image]
+matrix:
+  include:
+    - SMOKE_BUILDX: ghcr.io/revotale/ci/buildx:v0.1.8
+    - SMOKE_BUILDX: ghcr.io/revotale/ci/buildx:v0.1.8@sha256:bbd7e0a849e2e87c6e1bbecc6f8caf7fae0849b84b7e6abab34af07f9b1657b9
 
 steps:
+
   # Exercise this release through the normal consumer plugin interface.
   - name: build-consumer
-    image: "ghcr.io/revotale/ci/buildx:${CI_COMMIT_TAG}"
+    image: "${SMOKE_BUILDX}"
     pull: true
     depends_on: []
     settings:
@@ -25,8 +28,10 @@ steps:
 
   # Inspect exported metadata without loading an image or publishing a fixture.
   - name: inspect-consumer
-    image: "ghcr.io/revotale/ci/base:${CI_COMMIT_TAG}"
+    image: "ghcr.io/revotale/ci/base:v0.1.8@sha256:c59b01e74acd309c9c775f594917df6d9f8cad93fdfa7f40408aebeb5140f414"
     pull: true
     depends_on: [build-consumer]
+    environment:
+      CI_SMOKE_IMAGE: ${CI_WORKSPACE}/.smoke-image
     commands:
-      - task test:integration
+      - go test -tags=integration -count=1 -run '^TestPublishedWrapperLabels$' ./tests/consumer
