@@ -3,6 +3,8 @@
 These workflows maintain this repository. Consumers start from `examples/`;
 do not copy our whole `.woodpecker/` directory.
 
+For checks without a working CI server, see [local Woodpecker execution](local-verification.md).
+
 - `validate.yaml`: shared code and configuration checks.
 - `image.yaml`: build the base and Buildx images through a matrix.
 - `release-pr.yaml`: prepare release PRs and create forge releases on main pushes.
@@ -32,18 +34,28 @@ A successful tag pipeline confirms artifacts are ready for consumers.
 Smoke uses the current release tag because those images are its test subjects.
 Consumer workflows keep explicit versions and digests.
 
-## Local verification, 2026-11-07
+## Local verification, 2026-11-13
 
-- `task lint`, `task test:unit`, `task fmt` and `task fix` passed in the Dev Container; no Go source changes were required.
-- Both Go modules passed `go mod verify`.
-- The Buildx wrapper and Task compiled for Linux ARM64 and AMD64. Native ARM64 help/version checks passed; AMD64 binaries were not executed.
-- The base and Buildx images passed local `artifact-test` and `release` Docker builds on Linux ARM64. No images were pushed.
+The wrapper now passes required OCI metadata directly to upstream Buildx,
+without comma-separated env encoding. Missing, empty and whitespace-only
+values fail before building.
 
-Full AMD64 Docker image builds and the release consumer integration test were not verified in that pass.
+- Dev Container: lint, unit tests, module verification and format/fix checks passed. Regression tests cover special characters, required fields and environment-file failures.
+- Woodpecker CLI 3.19.0 with Docker: the PR workflow passed both image matrices, YAML validation, formatting, lint and unit tests. No publication step ran.
+- Consumer smoke: the local wrapper built and exported an OCI image; integration checks passed for required labels, the comma-containing description and upstream provenance labels.
+- File-artifact example: a temporary consumer checkout ran `examples/task-workflow.yaml` with the local base image. It built the real wrapper binary once, verified its checksum and startup in the artifact step, and skipped publication for the PR event.
+- Docker example: a temporary consumer checkout ran `examples/woodpecker.yaml` with local images and the real Buildx Dockerfile. Both build targets passed through the wrapper, with a comma-containing description and cache export/import. Repository metadata was supplied through `--env` to work around the CLI 3.19.0 `--repo` bug; publication was skipped.
+- Architecture coverage: ARM64 artifact and release builds plus full consumer smoke; AMD64 artifact build and executable startup under emulation.
 
-## Custom Updatecli removal, 2026-11-09
+Use [the local commands](local-verification.md) to reproduce these checks.
+They do not establish registry publication or server-side permissions.
 
-Removed the custom runner, policy publication, dependency workflow and their
-validation and smoke steps. The remaining base and Buildx release flow is intact.
-`task lint`, `task test:unit` and strict lint of the four remaining repository
-workflows passed. These local checks do not establish a successful release.
+## Deployment handoff
+
+1. Merge the implementation PR and let the normal release flow prepare its release PR.
+2. Before the release tag is created, allow that exact Buildx image tag in the server's privileged-plugin list. Keep repository-wide privilege and host-volume permissions disabled.
+3. Merge the release PR. Let ready-release-go create the tag, then verify publication of both architectures and the published consumer smoke.
+4. Update README and consumer examples to the verified release versions and multi-platform index digests. Add the exact digest-pinned Buildx references to the server allowlist before switching consumers.
+
+Keep existing release tags unchanged. Do not substitute local-only image tags
+or unverified digests in consumer examples.

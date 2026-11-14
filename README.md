@@ -116,8 +116,19 @@ See [Vladyslav's decision and the official integration references](docs/integrat
 ## What is enforced
 
 Our Buildx wrapper requires `title`, `description`, `authors` and `licenses`.
-It checks that values are present, not that they are correct.
+It rejects missing, empty and whitespace-only values before building. It does not validate their meaning.
 A workflow that bypasses the wrapper also bypasses these checks.
+
+The wrapper adds metadata directly to the official Buildx implementation as label
+values. Commas, quotes and newlines are preserved without env-list escaping.
+Build and push behavior comes from upstream; Docker startup uses its entrypoint.
+An unreadable or invalid explicit `PLUGIN_ENV_FILE` fails before building.
+
+When upgrading Buildx, update both its image in `images/buildx/Dockerfile` and
+its Go module in `go.mod` to the same upstream release. The `v6.1.2` release
+is pinned by commit `333eea4b28938eeca6e5280ed972f7150c56569f`: upstream's module
+path lacks `/v6`, so Go cannot consume that release tag directly.
+Update the reported upstream version in `internal/buildx/buildx.go` too.
 
 Keep image versions explicit in every step so dependency updates show
 exactly which steps change.
@@ -126,6 +137,7 @@ exactly which steps change.
 
 Read [AGENTS.md](AGENTS.md) and [DECISIONS.md](DECISIONS.md) before proposing changes.
 For existing projects, follow the [migration guide](docs/migrate.md).
+To verify workflow changes without the server, use [local Woodpecker execution](docs/local-verification.md).
 
 Build shared functionality here. Propose extraction into
 [woodpecker-toolkit](https://github.com/RevoTale/woodpecker-toolkit)

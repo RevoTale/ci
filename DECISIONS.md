@@ -10,6 +10,7 @@ Current agreed decisions. Implementation may still be pending.
 | Build shared functionality in `RevoTale/ci`. Extract to `woodpecker-toolkit` only when it helps other people too. | Sharing code between our own repos alone does not justify another dependency. |
 | Write the full image and version in each step, without image anchors. | See what each step uses, change versions independently when bugs occur, and see exactly which steps a dependency bump affects in the Git diff. |
 | Use Taskfile for project commands. Require `task lint` and `task test:unit`. Invoke tasks explicitly through workflow `commands` or Dockerfile `RUN`. | Local development and CI use the same commands. |
+| Use official `woodpecker-cli exec` with the Docker backend for local workflow verification. | Vladyslav requested local execution because cloud CI is currently unavailable. |
 | Add optional Task commands when the project implements that capability. Invoke each check once through workflow steps or Dockerfile targets. Use native plugins for image builds and publication. | Keep a consistent contract without empty tasks or extra custom code. |
 | Prefer Debian Trixie for our toolchain. Allow Alpine where appropriate and scratch or distroless for suitable runtime images. | Keep environments consistent without forcing a full distribution into every image. |
 | Manage Task through Go module tools and install its binary into the toolchain image. | Keep the tool version in the module and make `task` directly available. |
@@ -19,7 +20,7 @@ Current agreed decisions. Implementation may still be pending.
 | Build and publish ARM64 and AMD64 images only on release tags by default. Cross-compile Go where possible. | Consumers pull the matching platform without requiring emulation for compilation. |
 | Use explicit Buildx cache export and import between steps. | Reuse layers within the workflow. Persistent or cross-project cache remains an operator choice. |
 | Declare each image's context, Dockerfile and full registry path. | Support multiple images without requiring an `IMAGE_PREFIX` convention. |
-| Require `title`, `description`, `authors` and `licenses` in our Buildx wrapper. | Missing metadata fails early. Reuse plugin-provided labels instead of duplicating them. |
+| Require non-empty `title`, `description`, `authors` and `licenses` in our Buildx wrapper. Pass their values directly to the official Buildx Go implementation. | Vladyslav requires enforced image metadata. The plugin's comma-separated labels cannot preserve these values. We accept its Go dependencies to retain enforcement without maintaining build or push logic. |
 | Declare the actual author in image metadata. Use `Liakhovskyi Vladyslav` for these images. | Authorship should be explicit, not inferred from the organization or CI actor. |
 | Use Go for necessary custom logic, with named functions, strict golangci-lint, gofmt and go fix checks. | Keep the small amount of custom code readable and checked. |
 | Validate PRs, default-branch pushes and manual runs. Publish artifacts from tags after checks pass. | Avoid duplicate push and PR checks on working branches while keeping default-branch validation and release preparation. |
