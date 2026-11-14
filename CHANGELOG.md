@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.9](https://github.com/RevoTale/ci/releases/tag/v0.1.9) - 2026-11-14
+
+### ❤️ Thanks to all contributors! ❤️
+
+@l-you
+
+### Misc
+
+- chore(ci): pin published v0.1.8 images [[#14](https://github.com/RevoTale/ci/pull/14)]
+
 ## [0.1.8](https://github.com/RevoTale/ci/releases/tag/v0.1.8) - 2026-11-14
 
 ### ❤️ Thanks to all contributors! ❤️
