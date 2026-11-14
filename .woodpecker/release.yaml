@@ -37,7 +37,5 @@ steps:
     image: "ghcr.io/revotale/ci/base:v0.1.8@sha256:c59b01e74acd309c9c775f594917df6d9f8cad93fdfa7f40408aebeb5140f414"
     pull: true
     depends_on: [build-consumer]
-    environment:
-      CI_SMOKE_IMAGE: ${CI_WORKSPACE}/.smoke-image
     commands:
-      - go test -tags=integration -count=1 -run '^TestPublishedWrapperLabels$' ./tests/consumer
+      - CI_SMOKE_IMAGE="$${PWD}/.smoke-image" go test -tags=integration -count=1 -run '^TestPublishedWrapperLabels$' ./tests/consumer
