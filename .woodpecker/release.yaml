@@ -5,6 +5,7 @@ matrix:
   include:
     - SMOKE_BUILDX: ghcr.io/revotale/ci/buildx:v0.1.8
     - SMOKE_BUILDX: ghcr.io/revotale/ci/buildx:v0.1.8@sha256:bbd7e0a849e2e87c6e1bbecc6f8caf7fae0849b84b7e6abab34af07f9b1657b9
+    - SMOKE_BUILDX: woodpeckerci/plugin-docker-buildx:6.1.2@sha256:d26b69cbe748b8a219c707e7889d5ffb3f9214bc3c480c30fe857ff85954267c
 
 steps:
 
@@ -23,6 +24,10 @@ steps:
       authors: Liakhovskyi Vladyslav
       licenses: MIT
       labels:
+        - org.opencontainers.image.title=CI smoke
+        - org.opencontainers.image.description=Buildx smoke test\, native platform
+        - org.opencontainers.image.authors=Liakhovskyi Vladyslav
+        - org.opencontainers.image.licenses=MIT
         - com.revotale.smoke=preserved
       dry_run: true
       output: type=oci,tar=false,dest=.smoke-image
