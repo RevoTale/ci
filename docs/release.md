@@ -73,9 +73,22 @@ pulled by these index digests. Required labels, the comma-containing description
 and provenance checks passed.
 
 [Tag pipeline #79](https://ci.revotale.com/repos/4/pipeline/79) published both
-images successfully, but its consumer step could not connect to the nested
-Docker daemon. Server-side execution remains unverified until the privileged
-allowlist is confirmed in the running server and the smoke passes there.
+images successfully, but its consumer step failed because the active server's
+privileged allowlist still contained only Buildx v0.1.6 and v0.1.7.
+
+After deploying the updated allowlist,
+[server smoke #87](https://ci.revotale.com/repos/4/pipeline/87) passed for both
+the v0.1.8 bare tag and its exact digest-pinned reference. Each built the consumer
+and verified the required OCI labels, including the comma-containing description
+and custom label. Tag provenance was checked in the local published-image smoke;
+the server rerun used a PR event and checked permissions, builds and labels.
+
+The temporary verification PR was closed without merging. Release images were
+not rebuilt or republished, so the index digests above remain unchanged.
+The published components are ready for consumer migrations following
+[the migration guide](migrate.md); each repository still needs its own checks,
+secrets, release and deployment paths verified before switching CI.
+
 Changing Compose environment requires container recreation; restarting an
 existing container does not apply the new environment. Preserve both the bare
 tag and exact digest-pinned Buildx reference in the allowlist.
