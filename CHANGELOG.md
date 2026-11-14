@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.8](https://github.com/RevoTale/ci/releases/tag/v0.1.8) - 2026-11-14
+
+### ❤️ Thanks to all contributors! ❤️
+
+@l-you
+
+### Misc
+
+- fix(buildx): preserve required OCI metadata values [[#12](https://github.com/RevoTale/ci/pull/12)]
+
 ## [0.1.7](https://github.com/RevoTale/ci/releases/tag/v0.1.7) - 2026-11-08
 
 ### ❤️ Thanks to all contributors! ❤️
