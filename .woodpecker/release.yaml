@@ -14,6 +14,7 @@ steps:
     pull: true
     depends_on: []
     settings:
+      debug: true
       context: tests/consumer
       dockerfile: tests/consumer/Dockerfile
       repo: ci-smoke
