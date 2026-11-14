@@ -21,7 +21,8 @@ linters:
           allow:
             - $gostd
             - github.com/RevoTale/ci/internal/buildx
-            - codeberg.org/woodpecker-plugins/go-plugin
+            - codeberg.org/woodpecker-plugins/plugin-docker-buildx/plugin
+            - github.com/joho/godotenv
             - github.com/urfave/cli/v3
     errcheck:
       check-type-assertions: true

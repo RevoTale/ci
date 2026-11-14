@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 )
 
 type descriptor struct {
@@ -50,6 +51,31 @@ func TestPublishedWrapperLabels(t *testing.T) {
 	for key, value := range want {
 		if labels[key] != value {
 			t.Errorf("label %q = %q, want %q", key, labels[key], value)
+		}
+	}
+}
+
+func TestPublishedWrapperProvenance(t *testing.T) {
+	t.Parallel()
+
+	root := openImageLayout(t)
+	defer closeImageLayout(t, root)
+
+	labels := nativeImageLabels(t, root)
+	if _, err := time.Parse(time.RFC3339, labels["org.opencontainers.image.created"]); err != nil {
+		t.Fatalf("invalid created label: %v", err)
+	}
+
+	for name, value := range map[string]string{
+		"revision": os.Getenv("CI_COMMIT_SHA"),
+		"version":  strings.TrimPrefix(os.Getenv("CI_COMMIT_TAG"), "v"),
+	} {
+		if value == "" {
+			t.Fatalf("missing expected %s; run the smoke workflow with commit and tag metadata", name)
+		}
+
+		if got := labels["org.opencontainers.image."+name]; got != value {
+			t.Errorf("label %s = %q, want %q", name, got, value)
 		}
 	}
 }

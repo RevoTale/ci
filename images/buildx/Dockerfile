@@ -14,11 +14,11 @@ RUN ["go", "build", "-trimpath", "-o", "/out/buildx", "./cmd/buildx"]
 # Keep the official builder and daemon startup; add metadata handling.
 FROM woodpeckerci/plugin-docker-buildx:6.1.2@sha256:d26b69cbe748b8a219c707e7889d5ffb3f9214bc3c480c30fe857ff85954267c AS runtime
 
-COPY --from=build /out/buildx /usr/local/bin/ci-buildx
-ENTRYPOINT ["/usr/local/bin/ci-buildx"]
+COPY --from=build /out/buildx /bin/plugin-docker-buildx
+ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh", "plugin-docker-buildx"]
 
 # Check the installed entrypoint on the selected test platform.
 FROM runtime AS artifact-test
-RUN ["/usr/local/bin/ci-buildx", "--help"]
+RUN ["/bin/plugin-docker-buildx", "--help"]
 
 FROM runtime AS release
